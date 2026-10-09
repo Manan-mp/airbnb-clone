@@ -12,8 +12,8 @@ export function BottomNav() {
   const base = "flex flex-1 flex-col items-center gap-1 pt-2 text-xs transition-colors duration-150 ease-airy";
   const tone = (active: boolean) => (active ? "font-medium text-brand" : "text-ink-secondary");
 
-  // the listing and booking pages have their own fixed bottom bar
-  if (pathname.startsWith("/rooms/") || pathname.startsWith("/book/")) return null;
+  // the listing, booking and listing-form pages have their own bottom bar
+  if (pathname.startsWith("/rooms/") || pathname.startsWith("/book/") || pathname.startsWith("/host/listings")) return null;
 
   return (
     <nav

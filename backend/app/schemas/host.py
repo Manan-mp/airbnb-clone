@@ -1,3 +1,5 @@
+from typing import Literal
+
 from pydantic import BaseModel, Field, HttpUrl, field_validator
 
 from app.catalog import CATEGORY_KEYS, PROPERTY_TYPES, ROOM_TYPES
@@ -67,8 +69,13 @@ class ListingIn(ListingUpdate):
 
 
 class HostListingOut(ListingCard):
+    is_active: bool
     upcoming_bookings: int
     total_bookings: int
+
+
+class DeleteOut(BaseModel):
+    result: Literal["deleted", "archived"]
 
 
 class UploadOut(BaseModel):

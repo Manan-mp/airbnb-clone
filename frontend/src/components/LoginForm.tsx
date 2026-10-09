@@ -9,7 +9,7 @@ import { useToast } from "./ui/Toast";
 type Mode = "login" | "signup";
 
 /** The log in / sign up form, shared by the desktop modal and the phone `/login` page. */
-export function LoginForm({ onDone }: { onDone: () => void }) {
+export function LoginForm({ onDone, variant = "modal" }: { onDone: () => void; variant?: "modal" | "page" }) {
   const { setSession } = useAuth();
   const toast = useToast();
   const [mode, setMode] = useState<Mode>("login");
@@ -19,10 +19,17 @@ export function LoginForm({ onDone }: { onDone: () => void }) {
   const [role, setRole] = useState<"guest" | "host">("guest");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  // The phone page mirrors the reference: one email field first, the password after Continue.
+  const [step, setStep] = useState<"email" | "password">("email");
+  const emailOnly = variant === "page" && mode === "login" && step === "email";
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    if (emailOnly) {
+      if (!/^\S+@\S+\.\S+$/.test(email.trim())) return setError("Enter a valid email address");
+      return setStep("password");
+    }
     setBusy(true);
     try {
       const res =
@@ -57,6 +64,7 @@ export function LoginForm({ onDone }: { onDone: () => void }) {
           required
           divider={mode === "signup"}
         />
+        {!emailOnly && (
         <Field
           label="Password"
           value={password}
@@ -67,6 +75,7 @@ export function LoginForm({ onDone }: { onDone: () => void }) {
           minLength={mode === "signup" ? 8 : undefined}
           divider
         />
+        )}
       </div>
       {mode === "signup" && (
         <div className="mt-3 flex gap-2" role="radiogroup" aria-label="Account type">
@@ -98,6 +107,7 @@ export function LoginForm({ onDone }: { onDone: () => void }) {
       >
         {busy ? "Please wait…" : mode === "login" ? "Continue" : "Sign up"}
       </button>
+      {variant === "page" && <SocialRow />}
       <p className="mt-4 text-center text-base text-ink-secondary">
         {mode === "login" ? "New here? " : "Already have an account? "}
         <button
@@ -105,6 +115,7 @@ export function LoginForm({ onDone }: { onDone: () => void }) {
           className="font-semibold text-ink underline"
           onClick={() => {
             setMode(mode === "login" ? "signup" : "login");
+            setStep("email");
             setError(null);
           }}
         >
@@ -130,7 +141,6 @@ function Field(props: {
 }) {
   return (
     <label className={`relative block ${props.divider ? "border-t border-ink-muted" : ""}`}>
-      <span className="pointer-events-none absolute left-4 top-2 text-xs text-ink-secondary">{props.label}</span>
       <input
         value={props.value}
         onChange={(e) => props.onChange(e.target.value)}
@@ -138,8 +148,47 @@ function Field(props: {
         autoComplete={props.autoComplete}
         required={props.required}
         minLength={props.minLength}
-        className="h-[55px] w-full bg-transparent px-4 pb-1.5 pt-[29px] text-md outline-none focus:bg-surface-subtle"
+        placeholder=" "
+        className="peer h-[55px] w-full bg-transparent px-4 pb-1.5 pt-[29px] text-md outline-none focus:bg-surface-subtle"
       />
+      {/* floating label: sits centred like a placeholder until the field is focused or filled */}
+      <span className="pointer-events-none absolute left-4 top-2 text-xs text-ink-secondary transition-all duration-200 ease-airy peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:text-md peer-focus:top-2 peer-focus:translate-y-0 peer-focus:text-xs">
+        {props.label}
+      </span>
     </label>
+  );
+}
+
+/** "or" divider plus two inert provider buttons: text only (no brand logos), with a "Coming soon" tooltip. */
+function SocialRow() {
+  return (
+    <>
+      <div className="my-6 flex items-center gap-4 text-md" aria-hidden>
+        <span className="h-px flex-1 bg-line-soft" />
+        or
+        <span className="h-px flex-1 bg-line-soft" />
+      </div>
+      <div className="flex justify-center gap-3">
+        {["Google", "Apple"].map((name) => (
+          <div key={name} className="group relative">
+            <button
+              type="button"
+              aria-disabled="true"
+              aria-label={`Continue with ${name} (coming soon)`}
+              onClick={(e) => e.preventDefault()}
+              className="flex size-social cursor-not-allowed items-center justify-center rounded-md border border-line text-xs font-medium text-ink-disabled"
+            >
+              {name}
+            </button>
+            <span
+              role="tooltip"
+              className="pointer-events-none absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-sm bg-ink px-3 py-1.5 text-xs text-white opacity-0 transition-opacity duration-200 ease-airy group-focus-within:opacity-100 group-hover:opacity-100"
+            >
+              Coming soon
+            </span>
+          </div>
+        ))}
+      </div>
+    </>
   );
 }

@@ -71,6 +71,7 @@
   --container-content: 1120px;
   --container-search: 850px;
   --container-reserve: 373px; /* sticky reserve column, measured */
+  --spacing-social: 60px; /* social login buttons, measured 60x60 */
 
   /* Breakpoints (sampled column changes, see design-tokens.md) */
   --breakpoint-sm: 550px;

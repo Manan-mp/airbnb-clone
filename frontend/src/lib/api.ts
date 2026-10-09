@@ -4,6 +4,9 @@ import type {
   Booking,
   BookingInput,
   Category,
+  DeleteResult,
+  HostListing,
+  ListingInput,
   ListingCard,
   ListingDetail,
   ListingPage,
@@ -23,6 +26,8 @@ export class ApiError extends Error {
   constructor(
     public status: number,
     message: string,
+    /** Per-field messages from a 422 (keyed by the request field, e.g. "price_per_night"). */
+    public fields: Record<string, string> = {},
   ) {
     super(message);
   }
@@ -38,16 +43,23 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   const headers = new Headers(init.headers);
   const token = tokenStore.get();
   if (token) headers.set("Authorization", `Bearer ${token}`);
-  if (init.body && !headers.has("Content-Type")) headers.set("Content-Type", "application/json");
+  if (init.body && !(init.body instanceof FormData) && !headers.has("Content-Type")) headers.set("Content-Type", "application/json");
   const res = await fetch(`${API_URL}/api${path}`, { ...init, headers });
   if (!res.ok) {
     let message = `Request failed (${res.status})`;
+    const fields: Record<string, string> = {};
     try {
       const body = await res.json();
       if (typeof body.detail === "string") message = body.detail;
-      else if (Array.isArray(body.detail)) message = body.detail[0]?.msg ?? message;
+      else if (Array.isArray(body.detail)) {
+        message = body.detail[0]?.msg ?? message;
+        for (const d of body.detail) {
+          const field = Array.isArray(d.loc) ? d.loc.find((x: unknown, i: number) => i > 0 && typeof x === "string") : undefined;
+          if (field && !fields[field]) fields[field] = String(d.msg).replace(/^Value error, /, "");
+        }
+      }
     } catch {}
-    throw new ApiError(res.status, message);
+    throw new ApiError(res.status, message, fields);
   }
   return res.status === 204 ? (undefined as T) : res.json();
 }
@@ -69,6 +81,17 @@ export const api = {
   me: () => request<User>("/auth/me"),
   addWishlist: (id: number) => request<void>(`/wishlist/${id}`, { method: "PUT" }),
   removeWishlist: (id: number) => request<void>(`/wishlist/${id}`, { method: "DELETE" }),
+  hostListings: () => request<HostListing[]>("/host/listings"),
+  hostBookings: (qs: string) => request<Booking[]>(`/host/bookings${qs ? `?${qs}` : ""}`),
+  createListing: (body: ListingInput) => request<ListingCard>("/listings", { method: "POST", body: JSON.stringify(body) }),
+  updateListing: (id: number, body: Partial<ListingInput>) =>
+    request<ListingCard>(`/listings/${id}`, { method: "PATCH", body: JSON.stringify(body) }),
+  deleteListing: (id: number) => request<DeleteResult>(`/listings/${id}`, { method: "DELETE" }),
+  upload: (file: File) => {
+    const form = new FormData();
+    form.append("file", file);
+    return request<{ url: string }>("/uploads", { method: "POST", body: form });
+  },
   wishlist: () => request<ListingCard[]>("/wishlist"),
   createBooking: (body: BookingInput) => request<Booking>("/bookings", { method: "POST", body: JSON.stringify(body) }),
   booking: (id: number | string) => request<Booking>(`/bookings/${id}`),

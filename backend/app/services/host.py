@@ -3,6 +3,7 @@ from datetime import date
 from sqlalchemy import exists, func, select
 from sqlalchemy.orm import Session
 
+from app.catalog import CITY_CENTRES
 from app.errors import Conflict, Forbidden, Invalid, NotFound
 from app.models import Amenity, Booking, Listing, ListingPhoto, User
 
@@ -49,7 +50,17 @@ def _set_amenities(db: Session, listing: Listing, ids: list[int]) -> None:
     listing.amenities = found
 
 
+def _default_coords(data: dict) -> dict:
+    """Blank lat/lng default to the city centre when we know the city."""
+    if data.get("lat") is None and data.get("lng") is None:
+        centre = CITY_CENTRES.get(str(data.get("city", "")).strip().lower())
+        if centre:
+            return {**data, "lat": centre[0], "lng": centre[1]}
+    return data
+
+
 def create_listing(db: Session, host: User, data: dict) -> Listing:
+    data = _default_coords(data)
     listing = Listing(host_id=host.id, **{k: data[k] for k in LISTING_FIELDS if k in data})
     _set_photos(listing, data["photo_urls"])
     _set_amenities(db, listing, data.get("amenity_ids", []))
@@ -103,8 +114,8 @@ def host_listings(db: Session, host: User, today: date | None = None) -> list[tu
     total = select(func.count(Booking.id)).where(Booking.listing_id == Listing.id).scalar_subquery()
     rows = db.execute(
         select(Listing, upcoming, total)
-        .where(Listing.host_id == host.id, Listing.is_active.is_(True))
-        .order_by(Listing.created_at.desc(), Listing.id.desc())
+        .where(Listing.host_id == host.id)
+        .order_by(Listing.is_active.desc(), Listing.created_at.desc(), Listing.id.desc())
     )
     return [(r[0], r[1], r[2]) for r in rows]
 

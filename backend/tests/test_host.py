@@ -95,7 +95,8 @@ def test_delete_with_future_booking_is_409(client):
     assert bid in [b["id"] for b in client.get("/api/host/bookings", params={"listing_id": lid}, headers=h).json()]
     # once the guest cancels, the listing can go
     client.post(f"/api/bookings/{bid}/cancel", headers=gh)
-    assert client.delete(f"/api/listings/{lid}", headers=h).status_code == 204
+    r = client.delete(f"/api/listings/{lid}", headers=h)
+    assert r.status_code == 200 and r.json() == {"result": "archived"}
     # it had a (cancelled) booking, so it is archived rather than erased
     assert client.get(f"/api/listings/{lid}").status_code == 410
 
@@ -103,7 +104,8 @@ def test_delete_with_future_booking_is_409(client):
 def test_delete_without_bookings_removes_and_with_history_archives(client, db):
     h = login(client, HOST)
     lid = new_listing(client, h).json()["id"]
-    assert client.delete(f"/api/listings/{lid}", headers=h).status_code == 204
+    r = client.delete(f"/api/listings/{lid}", headers=h)
+    assert r.status_code == 200 and r.json() == {"result": "deleted"}
     assert client.get(f"/api/listings/{lid}").status_code == 404
 
     lid2 = new_listing(client, h).json()["id"]
@@ -121,8 +123,12 @@ def test_delete_without_bookings_removes_and_with_history_archives(client, db):
         )
     )
     db.commit()
-    assert client.delete(f"/api/listings/{lid2}", headers=h).status_code == 204
-    assert lid2 not in [i["id"] for i in client.get("/api/host/listings", headers=h).json()]
+    assert client.delete(f"/api/listings/{lid2}", headers=h).json() == {"result": "archived"}
+    # the dashboard still lists it, flagged as archived with nothing upcoming
+    row = next(i for i in client.get("/api/host/listings", headers=h).json() if i["id"] == lid2)
+    assert row["is_active"] is False and row["upcoming_bookings"] == 0 and row["total_bookings"] == 1
+    # archived listings can no longer be edited or deleted
+    assert client.patch(f"/api/listings/{lid2}", json={"title": "Edited"}, headers=h).status_code == 404
     # archived listings answer 410 so the page can explain, unknown ids stay 404
     gone = client.get(f"/api/listings/{lid2}")
     assert gone.status_code == 410 and "no longer available" in gone.json()["detail"]
@@ -161,3 +167,22 @@ def test_upload_validates_type_and_role(client, tmp_path, monkeypatch):
     )
     big = PNG + b"\x00" * (5 * 1024 * 1024)
     assert client.post("/api/uploads", files={"file": ("b.png", big, "image/png")}, headers=h).status_code == 413
+
+
+def test_blank_coordinates_default_to_the_city_centre(client):
+    h = login(client, HOST)
+    r = new_listing(client, h, city="Jaipur", lat=None, lng=None)
+    assert r.status_code == 201, r.text
+    assert (r.json()["lat"], r.json()["lng"]) == (26.9124, 75.7873)
+    unknown = new_listing(client, h, city="Nowhereville", lat=None, lng=None).json()
+    assert unknown["lat"] is None and unknown["lng"] is None
+    explicit = new_listing(client, h, city="Jaipur", lat=27.0, lng=75.0).json()
+    assert (explicit["lat"], explicit["lng"]) == (27.0, 75.0)
+
+
+def test_host_listings_flag_and_scope(client):
+    h = login(client, HOST)
+    lid = new_listing(client, h).json()["id"]
+    rows = {i["id"]: i for i in client.get("/api/host/listings", headers=h).json()}
+    assert rows[lid]["is_active"] is True and rows[lid]["upcoming_bookings"] == 0
+    assert client.get("/api/host/listings", headers=login(client, "guest.riya@example.com")).status_code == 403

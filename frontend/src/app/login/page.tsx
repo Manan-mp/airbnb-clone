@@ -25,7 +25,7 @@ export default function LoginPage() {
 
   return (
     <main className="mx-auto min-h-[calc(100dvh-65px)] max-w-[480px] pt-10 md:pt-24">
-      <LoginForm onDone={() => finishLogin(next)} />
+      <LoginForm variant="page" onDone={() => finishLogin(next)} />
     </main>
   );
 }

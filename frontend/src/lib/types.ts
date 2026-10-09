@@ -120,3 +120,27 @@ export type BookingInput = {
   infants: number;
   pets: number;
 };
+
+export type HostListing = ListingCard & { is_active: boolean; upcoming_bookings: number; total_bookings: number };
+export type DeleteResult = { result: "deleted" | "archived" };
+export type ListingInput = {
+  title: string;
+  description: string;
+  property_type: string;
+  room_type: string;
+  category: string;
+  address: string;
+  city: string;
+  state: string;
+  country: string;
+  lat: number | null;
+  lng: number | null;
+  price_per_night: number;
+  cleaning_fee: number;
+  max_guests: number;
+  bedrooms: number;
+  beds: number;
+  bathrooms: number;
+  photo_urls: string[];
+  amenity_ids: number[];
+};

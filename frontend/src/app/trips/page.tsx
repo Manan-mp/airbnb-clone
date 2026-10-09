@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
+import { Pagination } from "@/components/Pagination";
 import { PageShell } from "@/components/PageShell";
 import { LoginPrompt, StatePanel } from "@/components/StatePanel";
 import { CancelModal } from "@/components/trips/CancelModal";
@@ -14,6 +15,8 @@ import { api } from "@/lib/api";
 import { bookingRef, formatPrice, formatRangeYear, guestSummary, toISO } from "@/lib/format";
 import { imgSrc } from "@/lib/img";
 import type { Booking, TripTab } from "@/lib/types";
+
+const PAGE_SIZE = 10;
 
 const TABS: { key: TripTab; label: string }[] = [
   { key: "upcoming", label: "Upcoming" },
@@ -34,6 +37,7 @@ export default function TripsPage() {
   const params = useSearchParams();
   const router = useRouter();
   const tab: TripTab = TABS.some((t) => t.key === params.get("tab")) ? (params.get("tab") as TripTab) : "upcoming";
+  const requestedPage = Math.max(1, Number(params.get("page")) || 1);
   const [data, setData] = useState<Data>({});
   const [error, setError] = useState<string | null>(null);
   const [toCancel, setToCancel] = useState<Booking | null>(null);
@@ -73,14 +77,27 @@ export default function TripsPage() {
   else if (items === undefined) body = <Skeleton />;
   else if (items.length === 0)
     body = <StatePanel icon={Luggage} title={EMPTY[tab].title} body={EMPTY[tab].body} action={tab === "upcoming" ? { label: "Start searching", href: "/" } : undefined} testId="trips-empty" />;
-  else
+  else {
+    const totalPages = Math.ceil(items.length / PAGE_SIZE);
+    const page = Math.min(requestedPage, totalPages);
+    const go = (p: number) => {
+      router.replace(`/trips?${tab === "upcoming" ? "" : `tab=${tab}&`}${p > 1 ? `page=${p}` : ""}`.replace(/[?&]$/, "") || "/trips", { scroll: false });
+      window.scrollTo({ top: 0 });
+    };
     body = (
+      <>
+      <p className="mb-6 text-md text-ink-secondary">
+        {items.length} trip{items.length === 1 ? "" : "s"}
+      </p>
       <ul className="space-y-6" data-testid="trips-list">
-        {items.map((b) => (
+        {items.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE).map((b) => (
           <TripCard key={b.id} booking={b} cancellable={b.status === "confirmed" && b.check_in > today} onCancel={() => setToCancel(b)} onReview={() => setToReview(b)} />
         ))}
       </ul>
+      <Pagination page={page} totalPages={totalPages} onChange={go} />
+      </>
     );
+  }
 
   return (
     <PageShell>

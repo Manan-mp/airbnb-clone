@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query, Response, status
+from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 
 from app.db import get_db
@@ -6,7 +6,7 @@ from app.deps import require_host
 from app.models import User
 from app.routers.serializers import booking_out
 from app.schemas.booking import BookingOut
-from app.schemas.host import HostListingOut, ListingIn, ListingUpdate
+from app.schemas.host import DeleteOut, HostListingOut, ListingIn, ListingUpdate
 from app.schemas.listing import ListingCard
 from app.services import host as svc
 from app.services.search import card_dict
@@ -24,16 +24,16 @@ def update(listing_id: int, body: ListingUpdate, db: Session = Depends(get_db), 
     return card_dict(svc.update_listing(db, host, listing_id, body.to_data()), set())
 
 
-@router.delete("/listings/{listing_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/listings/{listing_id}", response_model=DeleteOut)
 def delete(listing_id: int, db: Session = Depends(get_db), host: User = Depends(require_host)):
-    svc.delete_listing(db, host, listing_id)
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
+    """`result` says whether the listing was erased or archived (it has booking history)."""
+    return {"result": svc.delete_listing(db, host, listing_id)}
 
 
 @router.get("/host/listings", response_model=list[HostListingOut])
 def my_listings(db: Session = Depends(get_db), host: User = Depends(require_host)):
     return [
-        {**card_dict(listing, set()), "upcoming_bookings": up, "total_bookings": total}
+        {**card_dict(listing, set()), "is_active": listing.is_active, "upcoming_bookings": up, "total_bookings": total}
         for listing, up, total in svc.host_listings(db, host)
     ]
 
