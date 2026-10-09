@@ -83,3 +83,10 @@ No account was created, nothing was typed into forms, nothing was booked.
 - **assumption:** the home page is a responsive grid of listing cards under a sticky category row, with numbered pagination (the assignment asks for a grid + pagination; live airbnb.co.in shows city carousels instead).
 - **assumption:** hover styles: card image zooms to 1.04 over 300ms; chips and secondary buttons darken their border to `#222`; text links underline.
 - **assumption:** messaging, identity verification and real payments show "Coming soon".
+
+## Phase 3 implementation notes
+- **assumption:** the map is a static placeholder (price pills projected from lat/lng over a grid) until the stretch-goal interactive map; pins link to the listing.
+- **assumption:** on phones the results page shows the placeholder map with the list in a rounded sheet over it (fixed, not draggable).
+- **assumption:** home is a responsive grid (2 columns on phones at 165px cards, up to 6 at 1440) with a category row and numbered pagination (24 per page); results use 20 per page.
+- **assumption:** the mobile "When?" step shows only the exact-dates calendar (no Flexible tab / ±N day chips).
+- Login/sign-up is a modal on every width for now (the reference uses a `/login` page on phones).

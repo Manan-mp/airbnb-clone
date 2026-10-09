@@ -130,6 +130,30 @@ COMMENTS = [
 ]
 
 
+class CoverAllocator:
+    """Hands out cover photos so that no two listings share a cover.
+
+    Prefers an unused photo from the listing's own category pool, then any unused exterior
+    pool, then interiors. Uses its own RNG so the rest of the seed data is unaffected.
+    """
+
+    EXTERIOR_POOLS = ("beach", "cabin", "villa", "apartment", "farm", "lake", "tree")
+
+    def __init__(self, rng: random.Random):
+        self.rng = rng
+        self.used: set[str] = set()
+
+    def take(self, pool_key: str) -> str:
+        order = [pool_key, *[k for k in self.EXTERIOR_POOLS if k != pool_key], *INTERIORS]
+        for key in order:
+            free = [p for p in POOLS[key] if p not in self.used]
+            if free:
+                pick = self.rng.choice(free)
+                self.used.add(pick)
+                return pick
+        raise RuntimeError("Not enough distinct photos to give every listing a unique cover")
+
+
 def seed_if_empty(db: Session) -> bool:
     if db.scalar(select(func.count()).select_from(User)):
         return False
@@ -150,6 +174,7 @@ def seed(db: Session, rng: random.Random | None = None) -> None:
     hosts = [u for u in users if u.role == "host"]
     guests = [u for u in users if u.role == "guest"]
 
+    covers = CoverAllocator(random.Random(7))
     listings: list[Listing] = []
     for i in range(48):
         city, state, lat, lng, cats = DESTINATIONS[i % len(DESTINATIONS)]
@@ -192,7 +217,8 @@ def seed(db: Session, rng: random.Random | None = None) -> None:
 
         pool = POOLS[pool_key][:]
         rng.shuffle(pool)
-        photos = [(pool[0], "Exterior")]
+        cover = covers.take(pool_key)
+        photos = [(cover, "Exterior")]
         for key in rng.sample(INTERIORS, k=4):
             photos.append((rng.choice(POOLS[key]), CAPTIONS[key]))
         photos.append((pool[1 % len(pool)], "More views"))

@@ -77,6 +77,11 @@
   --breakpoint-lg: 950px;
   --breakpoint-xl: 1128px;
   --breakpoint-2xl: 1440px;
+  --breakpoint-map: 1280px; /* results page shows the map pane from here (assumption) */
+
+  /* Aspect ratios (measured card images) */
+  --aspect-card-home: 20 / 19;
+  --aspect-card: 4 / 3;
 
   /* Motion */
   --ease-airy: cubic-bezier(0.2, 0, 0, 1);
@@ -112,4 +117,68 @@ body {
 
 button {
   cursor: pointer;
+}
+
+/* Dual-handle price slider: two stacked native ranges, only the thumbs take pointer events. */
+.range-thumb {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  background: transparent;
+  pointer-events: none;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.range-thumb::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  pointer-events: auto;
+  width: 32px;
+  height: 32px;
+  border-radius: 9999px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  box-shadow: var(--shadow-pill);
+  cursor: grab;
+}
+.range-thumb::-moz-range-thumb {
+  pointer-events: auto;
+  width: 32px;
+  height: 32px;
+  border-radius: 9999px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  box-shadow: var(--shadow-pill);
+  cursor: grab;
+}
+.range-thumb::-webkit-slider-runnable-track {
+  background: transparent;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }

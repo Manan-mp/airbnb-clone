@@ -159,3 +159,6 @@ Hover appearances (colour/shadow/scale values) for cards, chips, buttons, tabs: 
 | scrim | `rgba(0,0,0,0.5)` | modal backdrop |
 | breakpoint-sm | 550px | small-phone → large-phone grid change |
 | header-compact | 80px | collapsed header height (matches sticky reserve `top: 80px`) |
+| aspect-card-home | 20 / 19 (measured 181.7 x 172.6) | home grid card image |
+| aspect-card | 4 / 3 (measured 307.2 x 230.4) | results card image |
+| breakpoint-map | 1280px | results page shows the map pane from here |
