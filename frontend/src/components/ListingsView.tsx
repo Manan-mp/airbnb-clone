@@ -66,12 +66,12 @@ export function ListingsView({ variant }: { variant: "home" | "search" }) {
 
   const bottom =
     variant === "home" ? (
-      <div className="flex items-center gap-6 pt-1">
+      <div className="flex h-[72px] items-center gap-6">
         <CategoryRow categories={categories} selected={state.category} onSelect={(c) => push({ ...state, category: c })} />
         <div className="hidden md:block">{filtersButton}</div>
       </div>
     ) : (
-      <div className="scrollbar-none flex items-center gap-2 overflow-x-auto py-3">
+      <div className="scrollbar-none flex h-[72px] items-center gap-2 overflow-x-auto">
         <div className="hidden md:block">{filtersButton}</div>
         {QUICK_CHIPS.map((name) => {
           const a = amenities.find((x) => x.name === name);

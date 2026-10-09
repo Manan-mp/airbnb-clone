@@ -13,14 +13,19 @@ export type Segment = "where" | "when" | "who";
 type DraftApi = ReturnType<typeof useSearchDraft>;
 
 type Props = DraftApi & {
-  /** Segment to open immediately (used when expanding from the compact pill). */
-  initialSegment?: Segment | null;
+  /** Opens a segment when `id` changes (used when expanding from the compact pill). */
+  focusRequest?: { segment: Segment; id: number } | null;
   onOpenChange?: (open: boolean) => void;
 };
 
 /** Expanded desktop search pill with Where / When / Who popovers. */
-export function SearchBar({ draft, setDraft, submit, initialSegment = null, onOpenChange }: Props) {
-  const [active, setActive] = useState<Segment | null>(initialSegment);
+export function SearchBar({ draft, setDraft, submit, focusRequest = null, onOpenChange }: Props) {
+  const [active, setActive] = useState<Segment | null>(null);
+  const [handled, setHandled] = useState(0);
+  if (focusRequest && focusRequest.id !== handled) {
+    setHandled(focusRequest.id);
+    setActive(focusRequest.segment);
+  }
   const root = useRef<HTMLDivElement>(null);
   const whereInput = useRef<HTMLInputElement>(null);
 
