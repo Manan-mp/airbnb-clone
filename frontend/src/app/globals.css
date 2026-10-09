@@ -4,6 +4,13 @@
  * Design tokens — the only source of colours, radii, shadows, type and motion.
  * Values come from design-ref/design-tokens.md (measured from the reference site).
  */
+/* Stacking scale: the one place z-index layers are defined. */
+:root {
+  --z-row: 10;
+  --z-popover: 20;
+  --z-menu: 30;
+}
+
 @theme {
   /* Colours */
   --color-ink: #222222;

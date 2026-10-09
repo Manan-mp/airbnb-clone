@@ -148,7 +148,7 @@ export function Header({ variant, bottom, mobileAction, hideMobile }: Props) {
         />
 
         <div
-          className={clsx("pointer-events-auto absolute inset-x-0 top-0 px-8 xl:px-12", move)}
+          className={clsx("pointer-events-auto absolute inset-x-0 top-0 z-(--z-menu) px-8 xl:px-12", move)}
           style={{ height: ROW, transform: expanded ? "translateY(8px)" : "none" }}
         >
           <div className="grid h-full grid-cols-[1fr_auto_1fr] items-center">
@@ -197,7 +197,7 @@ export function Header({ variant, bottom, mobileAction, hideMobile }: Props) {
 
         <div
           inert={!expanded}
-          className={clsx("absolute inset-x-0 px-8 xl:px-12", move, expanded ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0")}
+          className={clsx("absolute inset-x-0 z-(--z-popover) px-8 xl:px-12", move, expanded ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0")}
           style={{ top: ROW + 22, transform: expanded ? "none" : `translateY(-${PILL_ROW / 2}px)` }}
         >
           <SearchBar {...draftApi} focusRequest={focusRequest} onOpenChange={onOpenChange} />
@@ -205,7 +205,7 @@ export function Header({ variant, bottom, mobileAction, hideMobile }: Props) {
 
         {bottom && (
           <div
-            className={clsx("pointer-events-auto absolute inset-x-0 px-8 xl:px-12", move)}
+            className={clsx("pointer-events-auto absolute inset-x-0 z-(--z-row) px-8 xl:px-12", move)}
             style={{ top: ROW, height: BOTTOM, transform: expanded ? `translateY(${PILL_ROW}px)` : "none" }}
           >
             {bottom}

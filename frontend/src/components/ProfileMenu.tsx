@@ -44,7 +44,7 @@ export function ProfileMenu() {
         <Menu size={18} />
       </button>
       {open && (
-        <div role="menu" className="absolute right-0 top-12 z-[60] w-60 overflow-hidden rounded-md bg-surface py-2 shadow-modal">
+        <div role="menu" className="absolute right-0 top-12 w-60 overflow-hidden rounded-md bg-surface py-2 shadow-modal">
           {user ? (
             <>
               <p className="px-4 py-2 text-base font-semibold">{user.name}</p>
