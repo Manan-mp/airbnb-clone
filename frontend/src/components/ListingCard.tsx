@@ -70,7 +70,7 @@ export function ListingCard({
         listingId={listing.id}
         wishlisted={listing.is_wishlisted}
         onChange={(on) => onWishlistChange?.(listing.id, on)}
-        className="absolute right-3 top-3"
+        className="absolute right-2 top-2"
       />
     </article>
   );
