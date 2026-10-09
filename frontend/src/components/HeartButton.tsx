@@ -2,11 +2,9 @@
 
 import { Heart } from "lucide-react";
 import { clsx } from "clsx";
-import { useState } from "react";
-import { ApiError, api } from "@/lib/api";
-import { useAuth } from "./AuthProvider";
-import { useToast } from "./ui/Toast";
+import { useWishlist } from "@/lib/useWishlist";
 
+/** Circular heart over a card photo. */
 export function HeartButton({
   listingId,
   wishlisted,
@@ -18,55 +16,57 @@ export function HeartButton({
   onChange?: (v: boolean) => void;
   className?: string;
 }) {
-  const { user, requestLogin } = useAuth();
-  const toast = useToast();
-  const [on, setOn] = useState(wishlisted);
-  const [pop, setPop] = useState(false);
-  const [seen, setSeen] = useState(wishlisted);
-  if (seen !== wishlisted) {
-    // server value changed (e.g. after login): follow it
-    setSeen(wishlisted);
-    setOn(wishlisted);
-  }
-
-  async function set(next: boolean) {
-    setOn(next);
-    setPop(true);
-    setTimeout(() => setPop(false), 250);
-    try {
-      await (next ? api.addWishlist(listingId) : api.removeWishlist(listingId));
-      onChange?.(next);
-      toast.show(next ? "Saved to wishlist" : "Removed from wishlist");
-    } catch (e) {
-      setOn(!next);
-      toast.show(e instanceof ApiError ? e.message : "Couldn’t update your wishlist", "error");
-    }
-  }
-
-  function onClick(e: React.MouseEvent) {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!user) return requestLogin(() => void set(true));
-    void set(!on);
-  }
-
+  const { on, pop, toggle } = useWishlist(listingId, wishlisted, onChange);
   return (
     <button
       type="button"
       aria-label={on ? "Remove from wishlist" : "Add to wishlist"}
       aria-pressed={on}
-      onClick={onClick}
+      onClick={toggle}
       className={clsx(
         "flex size-8 items-center justify-center transition-transform duration-[250ms] ease-airy hover:scale-110",
         pop && "scale-125",
         className,
       )}
     >
-      <Heart
-        size={24}
-        strokeWidth={2}
-        className={clsx("stroke-white", on ? "fill-brand" : "fill-heart-idle")}
-      />
+      <Heart size={24} strokeWidth={2} className={clsx("stroke-white", on ? "fill-brand" : "fill-heart-idle")} />
+    </button>
+  );
+}
+
+/** Text "Save" control for the listing page title row (and a round icon variant for the phone hero). */
+export function SaveButton({
+  listingId,
+  wishlisted,
+  variant = "text",
+}: {
+  listingId: number;
+  wishlisted: boolean;
+  variant?: "text" | "round";
+}) {
+  const { on, pop, toggle } = useWishlist(listingId, wishlisted);
+  const icon = <Heart size={16} className={clsx(on ? "fill-brand stroke-brand" : "stroke-ink", "transition-transform", pop && "scale-125")} />;
+  if (variant === "round") {
+    return (
+      <button
+        type="button"
+        aria-label={on ? "Remove from wishlist" : "Save to wishlist"}
+        aria-pressed={on}
+        onClick={toggle}
+        className="flex size-10 items-center justify-center rounded-full bg-surface/90 shadow-pill"
+      >
+        {icon}
+      </button>
+    );
+  }
+  return (
+    <button
+      type="button"
+      aria-pressed={on}
+      onClick={toggle}
+      className="flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium underline transition-colors duration-150 ease-airy hover:bg-surface-control"
+    >
+      {icon} {on ? "Saved" : "Save"}
     </button>
   );
 }

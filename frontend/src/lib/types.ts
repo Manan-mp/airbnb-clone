@@ -40,3 +40,42 @@ export type Amenity = { id: number; name: string; icon_key: string; group: strin
 export type Category = { key: string; label: string; icon_key: string };
 export type User = { id: number; email: string; name: string; avatar_url: string | null; role: "guest" | "host"; is_superhost: boolean };
 export type TokenResponse = { access_token: string; user: User };
+
+export type PhotoDetail = { id: number; url: string; caption: string | null; position: number };
+export type RatingBreakdown = {
+  cleanliness: number;
+  accuracy: number;
+  check_in: number;
+  communication: number;
+  location: number;
+  value: number;
+};
+export type ListingDetail = ListingCard & {
+  description: string;
+  address: string;
+  cleaning_fee: number;
+  photo_details: PhotoDetail[];
+  amenities: Amenity[];
+  rating_breakdown: RatingBreakdown | null;
+  rating_counts: Record<string, number>;
+  host_since: number;
+};
+export type Quote = {
+  nights: number;
+  nightly_price: number;
+  subtotal: number;
+  cleaning_fee: number;
+  service_fee: number;
+  total: number;
+};
+export type Review = {
+  id: number;
+  listing_id: number;
+  booking_id: number;
+  rating: number;
+  comment: string;
+  created_at: string;
+  author: { id: number; name: string; avatar_url: string | null; created_at: string };
+};
+export type ReviewPage = { items: Review[]; total: number; page: number; page_size: number };
+export type Availability = { booked: { check_in: string; check_out: string }[] };

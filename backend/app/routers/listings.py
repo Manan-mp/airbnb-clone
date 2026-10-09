@@ -85,11 +85,14 @@ def list_listings(
 def get_listing(listing_id: int, db: Session = Depends(get_db), user: User | None = Depends(get_optional_user)):
     listing = db.scalar(
         select(Listing)
-        .where(Listing.id == listing_id, Listing.is_active.is_(True))
+        .where(Listing.id == listing_id)
         .options(selectinload(Listing.photos), selectinload(Listing.host), selectinload(Listing.amenities))
     )
     if listing is None:
         raise HTTPException(404, "Listing not found")
+    if not listing.is_active:
+        # Archived by its host: the page can say so instead of pretending it never existed.
+        raise HTTPException(410, "This listing is no longer available")
     avgs = db.execute(
         select(
             func.avg(Review.cleanliness),
@@ -110,8 +113,16 @@ def get_listing(listing_id: int, db: Session = Depends(get_db), user: User | Non
             )
         }
     )
+    counts = dict(
+        db.execute(
+            select(Review.rating, func.count(Review.id)).where(Review.listing_id == listing_id).group_by(Review.rating)
+        )
+        .tuples()
+        .all()
+    )
     data = card_dict(listing, wishlisted_ids(db, user.id if user else None))
     data.update(
+        rating_counts={str(star): counts.get(star, 0) for star in range(5, 0, -1)},
         description=listing.description,
         address=listing.address,
         cleaning_fee=listing.cleaning_fee,

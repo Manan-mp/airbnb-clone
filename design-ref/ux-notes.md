@@ -90,3 +90,14 @@ No account was created, nothing was typed into forms, nothing was booked.
 - **assumption:** home is a responsive grid (2 columns on phones at 165px cards, up to 6 at 1440) with a category row and numbered pagination (24 per page); results use 20 per page.
 - **assumption:** the mobile "When?" step shows only the exact-dates calendar (no Flexible tab / ±N day chips).
 - Login/sign-up is a modal on every width for now (the reference uses a `/login` page on phones).
+
+## Phase 4 implementation notes (listing page)
+- Layout measured from the reference: content 1120 wide; 5-photo grid 560/272/272 columns, 238/230 rows; sticky reserve column 373 wide at `top: 80px`; calendar cell 42px.
+- The plain header (listing/utility pages) is in-flow, 96px, and scrolls away. A fixed section nav (Photos / Amenities / Reviews / Location) slides in after the gallery; it shows the reserve button once the sticky card is released at the end of its column.
+- Stay (dates + guests) lives in the URL (`check_in`, `check_out`, `adults`, `children`, `infants`, `pets`), so it is shareable and survives reloads; search results pass it through to the listing.
+- Blocked nights come from `/availability`: booked nights are struck through and a range may not cross one; checking out on the first booked night is allowed (back-to-back stays).
+- **assumption:** guests picker is capped at the listing's max guests (adults + children), infants and pets are not counted.
+- **assumption:** phones open a bottom sheet for dates (calendar first, collapsible guests row) from the sticky bar; the bar stacks price text above a full-width button.
+- **assumption:** archived listings answer 410 and show "This listing is no longer available"; unknown or non-numeric ids show "We can't find that place".
+- **assumption:** the location block is a static placeholder pin with "exact location shared after booking".
+- **assumption:** "Message host" is shown disabled ("coming soon").

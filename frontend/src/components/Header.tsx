@@ -21,6 +21,8 @@ type Props = {
   bottom?: React.ReactNode;
   /** Mobile results header: the filters button. */
   mobileAction?: React.ReactNode;
+  /** plain variant: render nothing on phones (the page draws its own top controls). */
+  hideMobile?: boolean;
 };
 
 // Desktop header geometry (px). The in-flow spacer height is constant for a given page, and the
@@ -29,7 +31,7 @@ const ROW = 80; // logo / tabs / profile row
 const PILL_ROW = 112; // extra height of the expanded search row (6 + 66 + 24 padding + 16 row shift)
 const BOTTOM = 72; // category row / filter chips
 
-export function Header({ variant, bottom, mobileAction }: Props) {
+export function Header({ variant, bottom, mobileAction, hideMobile }: Props) {
   const draftApi = useSearchDraft();
   const { draft } = draftApi;
   const router = useRouter();
@@ -86,6 +88,46 @@ export function Header({ variant, bottom, mobileAction }: Props) {
     );
 
   const move = "transition-[transform,opacity] duration-300 ease-airy";
+
+  if (variant === "plain") {
+    // Detail/utility pages: an ordinary in-flow header that scrolls away (no collapsing behaviour).
+    return (
+      <>
+        <header className="relative z-40 hidden border-b border-line-soft bg-surface md:block">
+          <div className="grid h-header grid-cols-[1fr_auto_1fr] items-center px-8 xl:px-12">
+            <div>
+              <Logo />
+            </div>
+            <button
+              type="button"
+              aria-label="Start your search"
+              onClick={() => setSheetOpen(true)}
+              className="flex h-12 items-center rounded-pill border border-line bg-surface pl-2 pr-2 text-base shadow-pill transition-shadow duration-200 ease-airy hover:shadow-modal"
+            >
+              <span className="px-4 font-medium">{placeText}</span>
+              <span className="h-6 w-px bg-line" />
+              <span className="px-4 font-medium">{dateText}</span>
+              <span className="h-6 w-px bg-line" />
+              <span className={clsx("px-4", guestText ? "font-medium" : "text-ink-secondary")}>{guestText || "Add guests"}</span>
+              <span className="flex size-8 items-center justify-center rounded-full bg-brand-gradient text-white">
+                <Search size={14} strokeWidth={2.5} />
+              </span>
+            </button>
+            <div className="flex justify-end">
+              <ProfileMenu />
+            </div>
+          </div>
+        </header>
+        {!hideMobile && (
+          <header className="sticky top-0 z-40 flex h-14 items-center justify-between bg-surface px-6 shadow-header md:hidden">
+            <Logo />
+            <ProfileMenu />
+          </header>
+        )}
+        <MobileSearchSheet {...draftApi} open={sheetOpen} onClose={() => setSheetOpen(false)} />
+      </>
+    );
+  }
 
   return (
     <>

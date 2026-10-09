@@ -1,4 +1,4 @@
-import type { Amenity, Category, ListingPage, TokenResponse, User } from "./types";
+import type { Amenity, Availability, Category, ListingDetail, ListingPage, Quote, ReviewPage, TokenResponse, User } from "./types";
 
 export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 const TOKEN_KEY = "staybnb.token";
@@ -38,6 +38,12 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
 
 export const api = {
   listings: (qs: string, signal?: AbortSignal) => request<ListingPage>(`/listings?${qs}`, { signal }),
+  listing: (id: number | string) => request<ListingDetail>(`/listings/${id}`),
+  availability: (id: number | string, from: string, to: string) =>
+    request<Availability>(`/listings/${id}/availability?from=${from}&to=${to}`),
+  quote: (id: number | string, qs: string, signal?: AbortSignal) => request<Quote>(`/listings/${id}/quote?${qs}`, { signal }),
+  reviews: (id: number | string, page: number, pageSize: number) =>
+    request<ReviewPage>(`/listings/${id}/reviews?page=${page}&page_size=${pageSize}`),
   amenities: () => request<Amenity[]>("/amenities"),
   categories: () => request<Category[]>("/categories"),
   login: (email: string, password: string) =>

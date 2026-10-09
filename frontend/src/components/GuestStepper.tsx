@@ -11,7 +11,19 @@ const ROWS: { key: keyof Guests; label: string; hint: string; max: number }[] = 
   { key: "pets", label: "Pets", hint: "Bringing a service animal?", max: 5 },
 ];
 
-export function GuestStepper({ value, onChange }: { value: Guests; onChange: (g: Guests) => void }) {
+export function GuestStepper({
+  value,
+  onChange,
+  maxGuests,
+  minAdults = 0,
+}: {
+  value: Guests;
+  onChange: (g: Guests) => void;
+  /** Adults + children may not exceed this (infants and pets do not count). */
+  maxGuests?: number;
+  minAdults?: number;
+}) {
+  const full = maxGuests !== undefined && value.adults + value.children >= maxGuests;
   return (
     <ul className="divide-y divide-line-soft">
       {ROWS.map((row) => {
@@ -29,11 +41,11 @@ export function GuestStepper({ value, onChange }: { value: Guests; onChange: (g:
               <div className="text-base text-ink-secondary">{row.hint}</div>
             </div>
             <div className="flex items-center gap-4">
-              <StepButton label={`Decrease ${row.label.toLowerCase()}`} disabled={n <= 0} onClick={() => set(n - 1)}>
+              <StepButton label={`Decrease ${row.label.toLowerCase()}`} disabled={n <= (row.key === "adults" ? minAdults : 0)} onClick={() => set(n - 1)}>
                 <Minus size={14} />
               </StepButton>
               <span className="w-4 text-center text-md tabular-nums">{n}</span>
-              <StepButton label={`Increase ${row.label.toLowerCase()}`} disabled={n >= row.max} onClick={() => set(n + 1)}>
+              <StepButton label={`Increase ${row.label.toLowerCase()}`} disabled={n >= row.max || (full && (row.key === "adults" || row.key === "children"))} onClick={() => set(n + 1)}>
                 <Plus size={14} />
               </StepButton>
             </div>

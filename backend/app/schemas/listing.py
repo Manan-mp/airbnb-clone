@@ -87,6 +87,7 @@ class RatingBreakdown(BaseModel):
 
 class ListingDetail(ListingCard):
     description: str
+    rating_counts: dict[str, int]  # "1".."5" -> number of reviews
     address: str
     cleaning_fee: int
     photo_details: list[PhotoOut]

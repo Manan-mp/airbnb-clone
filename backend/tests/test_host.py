@@ -96,7 +96,8 @@ def test_delete_with_future_booking_is_409(client):
     # once the guest cancels, the listing can go
     client.post(f"/api/bookings/{bid}/cancel", headers=gh)
     assert client.delete(f"/api/listings/{lid}", headers=h).status_code == 204
-    assert client.get(f"/api/listings/{lid}").status_code == 404
+    # it had a (cancelled) booking, so it is archived rather than erased
+    assert client.get(f"/api/listings/{lid}").status_code == 410
 
 
 def test_delete_without_bookings_removes_and_with_history_archives(client, db):
@@ -121,8 +122,10 @@ def test_delete_without_bookings_removes_and_with_history_archives(client, db):
     )
     db.commit()
     assert client.delete(f"/api/listings/{lid2}", headers=h).status_code == 204
-    assert client.get(f"/api/listings/{lid2}").status_code == 404
     assert lid2 not in [i["id"] for i in client.get("/api/host/listings", headers=h).json()]
+    # archived listings answer 410 so the page can explain, unknown ids stay 404
+    gone = client.get(f"/api/listings/{lid2}")
+    assert gone.status_code == 410 and "no longer available" in gone.json()["detail"]
     assert db.get(Booking, db.query(Booking.id).filter(Booking.listing_id == lid2).scalar()) is not None
 
 

@@ -36,7 +36,8 @@ function SheetBody({ onClose, draft, setDraft, submit, clear }: DraftApi & { onC
   const suggestions = DESTINATIONS.filter((d) => d.name.toLowerCase().includes(draft.location.trim().toLowerCase()));
 
   return (
-    <div role="dialog" aria-modal="true" aria-label="Search" className="fixed inset-0 z-[110] flex animate-[fade-in_200ms_var(--ease-airy)] flex-col bg-surface-subtle">
+    <div role="dialog" aria-modal="true" aria-label="Search" className="fixed inset-0 z-[110] flex animate-[fade-in_200ms_var(--ease-airy)] justify-center bg-surface-subtle">
+      <div className="relative flex h-full w-full max-w-[640px] flex-col">
       <div className="relative flex shrink-0 items-start justify-center px-4 pb-4 pt-5">
         <div className="flex gap-8 text-base">
           <span className="border-b-2 border-ink pb-1 font-semibold">Homes</span>
@@ -145,6 +146,7 @@ function SheetBody({ onClose, draft, setDraft, submit, clear }: DraftApi & { onC
         )}
       </div>
     </div>
+      </div>
   );
 }
 

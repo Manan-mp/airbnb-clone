@@ -12,6 +12,8 @@ export function BottomNav() {
   const base = "flex flex-1 flex-col items-center gap-1 pt-2 text-xs transition-colors duration-150 ease-airy";
   const tone = (active: boolean) => (active ? "font-medium text-brand" : "text-ink-secondary");
 
+  if (pathname.startsWith("/rooms/")) return null; // the listing page has its own sticky reserve bar
+
   return (
     <nav
       aria-label="Primary"

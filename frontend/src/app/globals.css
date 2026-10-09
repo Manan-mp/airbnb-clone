@@ -70,6 +70,7 @@
   --spacing-header-compact: 80px;
   --container-content: 1120px;
   --container-search: 850px;
+  --container-reserve: 373px; /* sticky reserve column, measured */
 
   /* Breakpoints (sampled column changes, see design-tokens.md) */
   --breakpoint-sm: 550px;
@@ -82,6 +83,7 @@
   /* Aspect ratios (measured card images) */
   --aspect-card-home: 20 / 19;
   --aspect-card: 4 / 3;
+  --aspect-gallery: 1120 / 476; /* 5-photo grid, measured */
 
   /* Motion */
   --ease-airy: cubic-bezier(0.2, 0, 0, 1);

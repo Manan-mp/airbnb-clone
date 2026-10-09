@@ -98,6 +98,9 @@ def test_detail_and_availability_endpoint(client, db):
     booking = db.query(Booking).filter(Booking.status == "confirmed", Booking.check_in > date.today()).first()
     d = client.get(f"/api/listings/{booking.listing_id}").json()
     assert d["photo_details"] and d["amenities"] and d["host_since"] >= 2020
+    assert (
+        set(d["rating_counts"]) == {"1", "2", "3", "4", "5"} and sum(d["rating_counts"].values()) == d["review_count"]
+    )
     assert d["rating_breakdown"] is None or set(d["rating_breakdown"]) >= {"cleanliness", "value"}
     av = client.get(f"/api/listings/{booking.listing_id}/availability").json()["booked"]
     assert {"check_in": booking.check_in.isoformat(), "check_out": booking.check_out.isoformat()} in av
