@@ -11,10 +11,11 @@ import { FiltersModal } from "./FiltersModal";
 import { Footer } from "./Footer";
 import { FiltersButtonMobile, Header } from "./Header";
 import { ListingCard } from "./ListingCard";
-import { MapPlaceholder } from "./MapPlaceholder";
+import { ResultsMap } from "./ResultsMap";
 import { Pagination } from "./Pagination";
 import { activeFilterCount, stateFromParams, toQuery, type SearchState } from "@/lib/search";
 import { useCatalog } from "@/lib/useCatalog";
+import { useIsPhone, useShowsSideMap } from "@/lib/useIsPhone";
 import { useListings } from "@/lib/useListings";
 import type { ListingPage } from "@/lib/types";
 
@@ -33,6 +34,9 @@ export function ListingsView({ variant, initial }: { variant: "home" | "search";
   const pageSize = variant === "home" ? 24 : 20;
   const qs = useMemo(() => toQuery(state, { page, page_size: pageSize }), [state, page, pageSize]);
   const [attempt, setAttempt] = useState(0);
+  const phone = useIsPhone();
+  const sideMap = useShowsSideMap();
+  const [hoverId, setHoverId] = useState<number | null>(null);
   const listings = useListings(qs, `${user?.id}-${attempt}`, initial);
   const data = listings.data;
 
@@ -134,6 +138,7 @@ export function ListingsView({ variant, initial }: { variant: "home" | "search";
                 listing={l}
                 priority={i < 4}
                 query={stayQuery}
+                onHover={variant === "search" ? setHoverId : undefined}
                 dateLabel={formatRange(state.check_in, state.check_out)}
                 aspect={variant === "home" ? "var(--aspect-card-home)" : "var(--aspect-card)"}
               />
@@ -166,7 +171,7 @@ export function ListingsView({ variant, initial }: { variant: "home" | "search";
       ) : (
         <>
           <div className="md:hidden">
-            <MapPlaceholder items={data?.items ?? []} className="h-[42dvh] rounded-none border-0" />
+            {phone && <ResultsMap items={data?.items ?? []} activeId={hoverId} className="h-[42dvh] rounded-none border-0" />}
           </div>
           <main className="relative -mt-6 rounded-t-modal bg-surface px-6 pt-6 md:mt-0 md:rounded-none md:px-8 md:pt-6 xl:px-12">
             <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-line md:hidden" aria-hidden />
@@ -182,7 +187,7 @@ export function ListingsView({ variant, initial }: { variant: "home" | "search";
                 {grid}
               </div>
               <div className="sticky top-[160px] hidden h-[calc(100dvh-184px)] map:block">
-                <MapPlaceholder items={data?.items ?? []} className="h-full" />
+                {sideMap && <ResultsMap items={data?.items ?? []} activeId={hoverId} wheelZoom className="h-full" />}
               </div>
             </div>
           </main>

@@ -85,8 +85,8 @@ No account was created, nothing was typed into forms, nothing was booked.
 - **assumption:** messaging, identity verification and real payments show "Coming soon".
 
 ## Phase 3 implementation notes
-- **assumption:** the map is a static placeholder (price pills projected from lat/lng over a grid) until the stretch-goal interactive map; pins link to the listing.
-- **assumption:** on phones the results page shows the placeholder map with the list in a rounded sheet over it (fixed, not draggable).
+- **assumption:** the map is an interactive Leaflet map (OpenStreetMap tiles) with a white price pin per listing; the static price-pill placeholder is the fallback while it loads and if tiles fail (Phase 7).
+- **assumption:** on phones the results page shows the map with the list in a rounded sheet over it (fixed, not draggable).
 - **assumption:** home is a responsive grid (2 columns on phones at 165px cards, up to 6 at 1440) with a category row and numbered pagination (24 per page); results use 20 per page.
 - **assumption:** the mobile "When?" step shows only the exact-dates calendar (no Flexible tab / ±N day chips).
 - Login/sign-up is a modal on desktop; phones use the `/login` page (Phase 5).
@@ -122,3 +122,9 @@ There is no host-side reference, so everything here follows Airbnb's host look a
 - **assumption:** photos are added by URL (Add button / Enter) or uploaded (`POST /uploads`, JPEG/PNG/WebP up to 5 MB), previewed as thumbnails, and reordered with up / down buttons (no drag and drop); the first photo is the cover. Blank lat/lng default to the city centre on create (known cities only) and are left unchanged on edit.
 - **assumption:** deleting asks for confirmation. A 409 (upcoming bookings) stays in the modal as an error; a listing with booking history is archived and the toast says so, otherwise it is deleted. Opening someone else's listing in the editor shows "You can't edit this listing"; unknown or archived ids show "We can't find that listing".
 - **assumption:** `/trips` is paginated client-side, 10 per page (`?page=`), with numbered pagination under the list.
+
+## Phase 7 implementation notes (QA)
+- **assumption:** results map: clicking a pin opens a small popup (photo, title, price, rating) linking to the listing; hovering or focusing a result card turns its pin `#222` with white text (as already assumed above). Wheel zoom is on only in the desktop side pane, so phones keep page scrolling. The map fits itself to the pins whenever results change. A static fallback replaces the map when no tile loads.
+- **assumption:** the listing page puts the sticky reserve card beside the content from 950px up (below that the fixed bottom bar is used); the inline calendar shows one month between 950 and 1128px and two otherwise, so it never overflows its column.
+- **assumption:** 404 page: "404" in the hero size, a one-line explanation and two buttons (home, browse all stays). Render errors show "Something went wrong" with Try again. Failed photos show a neutral grey tile with an image-off icon.
+- Home and listing pages render their first data on the server (so photos are in the first HTML); the client refetches so wishlist hearts stay per-user, and keeps the server copy if that refresh fails.

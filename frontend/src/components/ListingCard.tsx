@@ -12,6 +12,7 @@ export function ListingCard({
   query = "",
   dateLabel = "",
   onWishlistChange,
+  onHover,
 }: {
   listing: Listing;
   priority?: boolean;
@@ -21,12 +22,14 @@ export function ListingCard({
   /** e.g. "19–23 Oct", shown when the search has dates. */
   dateLabel?: string;
   onWishlistChange?: (id: number, on: boolean) => void;
+  /** Reports the hovered / focused card so a map can highlight its pin. */
+  onHover?: (id: number | null) => void;
 }) {
   const href = `/rooms/${listing.id}${query ? `?${query}` : ""}`;
   const badge = listing.is_guest_favourite ? "Guest favourite" : listing.host.is_superhost ? "Superhost" : null;
 
   return (
-    <article className="relative">
+    <article className="relative" onMouseEnter={() => onHover?.(listing.id)} onMouseLeave={() => onHover?.(null)} onFocus={() => onHover?.(listing.id)} onBlur={() => onHover?.(null)}>
       <Link href={href} className="block outline-offset-4">
         <ImageCarousel photos={listing.photos} alt={listing.title} priority={priority} aspect={aspect} />
         <div className="mt-3 flex items-start justify-between gap-3">

@@ -5,10 +5,10 @@ import { MapBackdrop } from "./MapBackdrop";
 import type { ListingCard } from "@/lib/types";
 
 /**
- * Static stand-in for the map (interactive map is a stretch goal).
+ * Static fallback for the interactive map (used while it loads or when tiles fail).
  * Pins are placed by projecting each listing's lat/lng onto the pane.
  */
-export function MapPlaceholder({ items, className = "" }: { items: ListingCard[]; className?: string }) {
+export function MapPlaceholder({ items, className = "", note = "Map unavailable, showing approximate positions" }: { items: ListingCard[]; className?: string; note?: string }) {
   const pts = items.filter((i) => i.lat !== null && i.lng !== null);
   const lats = pts.map((p) => p.lat as number);
   const lngs = pts.map((p) => p.lng as number);
@@ -19,7 +19,7 @@ export function MapPlaceholder({ items, className = "" }: { items: ListingCard[]
     <div
       className={`relative overflow-hidden rounded-card border border-line-soft bg-surface-control ${className}`}
       role="img"
-      aria-label="Map placeholder showing listing prices"
+      aria-label="Approximate map of listing prices"
     >
       <MapBackdrop />
       {pts.map((p) => (
@@ -33,7 +33,7 @@ export function MapPlaceholder({ items, className = "" }: { items: ListingCard[]
         </Link>
       ))}
       <span className="absolute bottom-4 left-4 flex items-center gap-1.5 rounded-chip bg-surface px-3 py-1.5 text-xs font-medium shadow-pill">
-        <MapPin size={12} /> Interactive map coming soon
+        <MapPin size={12} /> {note}
       </span>
     </div>
   );
