@@ -1,11 +1,14 @@
 from contextlib import asynccontextmanager
 
-from fastapi import APIRouter, FastAPI
+from fastapi import APIRouter, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 from app.config import get_settings
 from app.db import Base, SessionLocal, engine
-from app.routers import auth, listings
+from app.errors import DomainError
+from app.routers import auth, bookings, host, listings, uploads, wishlist
 
 settings = get_settings()
 
@@ -33,6 +36,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+@app.exception_handler(DomainError)
+async def domain_error_handler(_: Request, exc: DomainError) -> JSONResponse:
+    return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
+
+
 api = APIRouter(prefix="/api")
 
 
@@ -43,4 +52,11 @@ def health() -> dict[str, str]:
 
 api.include_router(auth.router)
 api.include_router(listings.router)
+api.include_router(bookings.router)
+api.include_router(wishlist.router)
+api.include_router(host.router)
+api.include_router(uploads.router)
 app.include_router(api)
+
+settings.media_dir.mkdir(parents=True, exist_ok=True)
+app.mount("/media", StaticFiles(directory=settings.media_dir), name="media")

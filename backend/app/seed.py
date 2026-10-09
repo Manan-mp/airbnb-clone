@@ -4,6 +4,7 @@ Photos come only from app/seed_data/photos.json, which scripts/build_photos.py b
 by verifying every Unsplash URL returns HTTP 200 (so seeding is offline-safe and never
 references an invented photo id).
 """
+
 import json
 import random
 import sys
@@ -34,17 +35,38 @@ USERS = [  # (email, name, role, superhost)
 ]
 
 AMENITIES = [  # (name, icon_key, group)
-    ("Wifi", "wifi", "essentials"), ("Kitchen", "utensils", "essentials"), ("Washing machine", "washing-machine", "essentials"),
-    ("Air conditioning", "snowflake", "essentials"), ("Heating", "flame", "essentials"), ("Free parking", "car", "essentials"),
-    ("TV", "tv", "essentials"), ("Hair dryer", "wind", "essentials"), ("Iron", "shirt", "essentials"),
-    ("Dedicated workspace", "laptop", "essentials"), ("Hot water", "droplet", "essentials"), ("Essentials", "bed", "essentials"),
-    ("Pool", "waves", "features"), ("Hot tub", "bath", "features"), ("BBQ grill", "flame", "features"),
-    ("Garden", "trees", "features"), ("Balcony", "door-open", "features"), ("Fireplace", "flame", "features"),
-    ("Gym", "dumbbell", "features"), ("Lift", "arrow-up-down", "features"), ("Breakfast included", "coffee", "features"),
-    ("Allows pets", "paw-print", "features"), ("EV charger", "plug-zap", "features"), ("Beach access", "umbrella", "features"),
-    ("Lake access", "droplets", "features"), ("Mountain view", "mountain", "features"), ("Cooking basics", "chef-hat", "features"),
-    ("Smoke alarm", "bell", "safety"), ("Carbon monoxide alarm", "siren", "safety"), ("First aid kit", "heart-pulse", "safety"),
-    ("Fire extinguisher", "flame-kindling", "safety"), ("Security cameras", "camera", "safety"),
+    ("Wifi", "wifi", "essentials"),
+    ("Kitchen", "utensils", "essentials"),
+    ("Washing machine", "washing-machine", "essentials"),
+    ("Air conditioning", "snowflake", "essentials"),
+    ("Heating", "flame", "essentials"),
+    ("Free parking", "car", "essentials"),
+    ("TV", "tv", "essentials"),
+    ("Hair dryer", "wind", "essentials"),
+    ("Iron", "shirt", "essentials"),
+    ("Dedicated workspace", "laptop", "essentials"),
+    ("Hot water", "droplet", "essentials"),
+    ("Essentials", "bed", "essentials"),
+    ("Pool", "waves", "features"),
+    ("Hot tub", "bath", "features"),
+    ("BBQ grill", "flame", "features"),
+    ("Garden", "trees", "features"),
+    ("Balcony", "door-open", "features"),
+    ("Fireplace", "flame", "features"),
+    ("Gym", "dumbbell", "features"),
+    ("Lift", "arrow-up-down", "features"),
+    ("Breakfast included", "coffee", "features"),
+    ("Allows pets", "paw-print", "features"),
+    ("EV charger", "plug-zap", "features"),
+    ("Beach access", "umbrella", "features"),
+    ("Lake access", "droplets", "features"),
+    ("Mountain view", "mountain", "features"),
+    ("Cooking basics", "chef-hat", "features"),
+    ("Smoke alarm", "bell", "safety"),
+    ("Carbon monoxide alarm", "siren", "safety"),
+    ("First aid kit", "heart-pulse", "safety"),
+    ("Fire extinguisher", "flame-kindling", "safety"),
+    ("Security cameras", "camera", "safety"),
 ]
 ESSENTIAL = ["Wifi", "Kitchen", "Hot water", "Essentials", "Smoke alarm", "TV"]
 BY_CATEGORY = {
@@ -85,7 +107,14 @@ LOOK = {
     "treehouse": ("tree", "treehouse", ["Canopy", "Treetop", "Nest"]),
     "trending": ("apartment", "apartment", ["Stylish", "Bright", "Trendy"]),
 }
-NOUNS = {"villa": "villa", "cabin": "cabin", "house": "home", "farm_stay": "farm stay", "apartment": "apartment", "treehouse": "treehouse"}
+NOUNS = {
+    "villa": "villa",
+    "cabin": "cabin",
+    "house": "home",
+    "farm_stay": "farm stay",
+    "apartment": "apartment",
+    "treehouse": "treehouse",
+}
 INTERIORS = ["bedroom", "living", "kitchen", "bath"]
 CAPTIONS = {"bedroom": "Bedroom", "living": "Living area", "kitchen": "Kitchen", "bath": "Bathroom"}
 
@@ -136,7 +165,8 @@ def seed(db: Session, rng: random.Random | None = None) -> None:
             title=f"{word} {NOUNS[prop_type]} in {city}",
             description=(
                 f"Wake up in {city}, {state}, in a {NOUNS[prop_type]} designed for slow mornings and easy evenings. "
-                f"The space sleeps up to {bedrooms * 2 + 1} guests across {bedrooms} bedroom{'s' if bedrooms > 1 else ''}, "
+                f"The space sleeps up to {bedrooms * 2 + 1} guests across "
+                f"{bedrooms} bedroom{'s' if bedrooms > 1 else ''}, "
                 "with a fully equipped kitchen, fast wifi and a host who is always a message away.\n\n"
                 "Local markets, cafes and sights are a short ride away, and we are happy to share our favourite spots."
             ),
@@ -181,7 +211,9 @@ def seed(db: Session, rng: random.Random | None = None) -> None:
     db.commit()
 
 
-def _seed_bookings_and_reviews(db: Session, listing: Listing, guests: list[User], rng: random.Random, today: date) -> None:
+def _seed_bookings_and_reviews(
+    db: Session, listing: Listing, guests: list[User], rng: random.Random, today: date
+) -> None:
     """Non-overlapping stays: a run of past stays, then a few upcoming ones."""
     cursor = today - timedelta(days=rng.randint(200, 330))
     ratings: list[int] = []
@@ -197,10 +229,20 @@ def _seed_bookings_and_reviews(db: Session, listing: Listing, guests: list[User]
         db.flush()
         if rng.random() < 0.88:
             base = rng.choices([5, 4, 3], weights=[70, 25, 5])[0]
-            sub = {k: min(5, max(1, base + rng.choice([-1, 0, 0, 1]))) for k in
-                   ["cleanliness", "accuracy", "check_in_rating", "communication", "location", "value"]}
-            db.add(Review(listing_id=listing.id, booking_id=booking.id, author_id=booking.guest_id, rating=base,
-                          comment=rng.choice(COMMENTS), **sub))
+            sub = {
+                k: min(5, max(1, base + rng.choice([-1, 0, 0, 1])))
+                for k in ["cleanliness", "accuracy", "check_in_rating", "communication", "location", "value"]
+            }
+            db.add(
+                Review(
+                    listing_id=listing.id,
+                    booking_id=booking.id,
+                    author_id=booking.guest_id,
+                    rating=base,
+                    comment=rng.choice(COMMENTS),
+                    **sub,
+                )
+            )
             ratings.append(base)
     start = today + timedelta(days=rng.randint(5, 25))
     for _ in range(rng.randint(0, 3)):
@@ -216,10 +258,20 @@ def _make_booking(listing: Listing, guest: User, check_in: date, check_out: date
     nights = (check_out - check_in).days
     q = compute_quote(listing.price_per_night, listing.cleaning_fee, nights)
     return Booking(
-        listing_id=listing.id, guest_id=guest.id, check_in=check_in, check_out=check_out,
-        adults=rng.randint(1, max(1, listing.max_guests - 1)), children=0, infants=0, pets=0,
-        nights=nights, nightly_price=q.nightly_price, cleaning_fee=q.cleaning_fee,
-        service_fee=q.service_fee, total_price=q.total, status="confirmed",
+        listing_id=listing.id,
+        guest_id=guest.id,
+        check_in=check_in,
+        check_out=check_out,
+        adults=rng.randint(1, max(1, listing.max_guests - 1)),
+        children=0,
+        infants=0,
+        pets=0,
+        nights=nights,
+        nightly_price=q.nightly_price,
+        cleaning_fee=q.cleaning_fee,
+        service_fee=q.service_fee,
+        total_price=q.total,
+        status="confirmed",
     )
 
 

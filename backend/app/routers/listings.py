@@ -8,6 +8,7 @@ from app.catalog import CATEGORIES, ROOM_TYPES
 from app.db import get_db
 from app.deps import get_optional_user
 from app.models import Amenity, Listing, Review, User
+from app.schemas.booking import QuoteOut, ReviewPage
 from app.schemas.listing import (
     AmenityOut,
     Availability,
@@ -17,6 +18,7 @@ from app.schemas.listing import (
     ListingPage,
 )
 from app.services.availability import booked_ranges
+from app.services.bookings import StayRequest, get_active_listing, quote_stay
 from app.services.search import SearchFilters, card_dict, search_listings, wishlisted_ids
 
 router = APIRouter(tags=["listings"])
@@ -101,9 +103,12 @@ def get_listing(listing_id: int, db: Session = Depends(get_db), user: User | Non
     breakdown = (
         None
         if avgs[0] is None
-        else {k: round(v, 1) for k, v in zip(
-            ["cleanliness", "accuracy", "check_in", "communication", "location", "value"], avgs, strict=True
-        )}
+        else {
+            k: round(v, 1)
+            for k, v in zip(
+                ["cleanliness", "accuracy", "check_in", "communication", "location", "value"], avgs, strict=True
+            )
+        }
     )
     data = card_dict(listing, wishlisted_ids(db, user.id if user else None))
     data.update(
@@ -141,3 +146,38 @@ def list_amenities(db: Session = Depends(get_db)):
 @router.get("/categories", response_model=list[CategoryOut])
 def list_categories():
     return CATEGORIES
+
+
+@router.get("/listings/{listing_id}/quote", response_model=QuoteOut)
+def quote(
+    listing_id: int,
+    check_in: date,
+    check_out: date,
+    adults: int = Query(1, ge=1, le=16),
+    children: int = Query(0, ge=0, le=16),
+    infants: int = Query(0, ge=0, le=5),
+    pets: int = Query(0, ge=0, le=5),
+    db: Session = Depends(get_db),
+):
+    stay = StayRequest(check_in, check_out, adults, children, infants, pets)
+    return quote_stay(db, listing_id, stay).__dict__
+
+
+@router.get("/listings/{listing_id}/reviews", response_model=ReviewPage)
+def reviews(
+    listing_id: int,
+    page: int = Query(1, ge=1),
+    page_size: int = Query(10, ge=1, le=50),
+    db: Session = Depends(get_db),
+):
+    get_active_listing(db, listing_id)
+    total = db.scalar(select(func.count(Review.id)).where(Review.listing_id == listing_id)) or 0
+    items = db.scalars(
+        select(Review)
+        .where(Review.listing_id == listing_id)
+        .options(selectinload(Review.author))
+        .order_by(Review.created_at.desc(), Review.id.desc())
+        .limit(page_size)
+        .offset((page - 1) * page_size)
+    )
+    return {"items": list(items), "total": total, "page": page, "page_size": page_size}

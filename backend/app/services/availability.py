@@ -27,4 +27,3 @@ def booked_ranges(db: Session, listing_id: int, start: date, end: date) -> list[
         .order_by(Booking.check_in)
     )
     return [(r.check_in, r.check_out) for r in rows]
-

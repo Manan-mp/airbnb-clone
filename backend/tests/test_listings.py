@@ -1,20 +1,27 @@
 from datetime import date, timedelta
 
-from app.models import Booking
+from app.models import Booking, Listing
 
 
-def test_default_page(client):
+def active_count(db) -> int:
+    db.rollback()
+    return db.query(Listing).filter(Listing.is_active.is_(True)).count()
+
+
+def test_default_page(client, db):
     r = client.get("/api/listings").json()
-    assert r["total"] == 48 and len(r["items"]) == 20 and r["total_pages"] == 3
+    n = active_count(db)
+    assert n >= 48 and r["total"] == n and len(r["items"]) == 20 and r["total_pages"] == -(-n // 20)
     card = r["items"][0]
     assert card["photos"] and card["host"]["name"] and card["quote"] is None
 
 
-def test_pagination_covers_everything_without_duplicates(client):
+def test_pagination_covers_everything_without_duplicates(client, db):
+    n = active_count(db)
     ids = []
-    for page in (1, 2, 3):
+    for page in range(1, -(-n // 20) + 1):
         ids += [i["id"] for i in client.get("/api/listings", params={"page": page}).json()["items"]]
-    assert len(ids) == len(set(ids)) == 48
+    assert len(ids) == len(set(ids)) == n
 
 
 def test_location_and_category_filters(client):
@@ -45,7 +52,10 @@ def test_amenity_filter_requires_all(client):
 
 
 def test_sorting(client):
-    asc = [i["price_per_night"] for i in client.get("/api/listings", params={"sort": "price_asc", "page_size": 60}).json()["items"]]
+    asc = [
+        i["price_per_night"]
+        for i in client.get("/api/listings", params={"sort": "price_asc", "page_size": 60}).json()["items"]
+    ]
     assert asc == sorted(asc)
     assert client.get("/api/listings", params={"sort": "bogus"}).status_code == 422
 
@@ -66,7 +76,7 @@ def test_availability_excludes_booked_listing_and_returns_quote(client, db):
     params = {"check_in": booking.check_in.isoformat(), "check_out": booking.check_out.isoformat(), "page_size": 60}
     res = client.get("/api/listings", params=params).json()
     assert lid not in [i["id"] for i in res["items"]]
-    assert res["total"] < 48 and all(i["quote"]["nights"] == booking.nights for i in res["items"])
+    assert res["total"] < active_count(db) and all(i["quote"]["nights"] == booking.nights for i in res["items"])
 
     # a stay that ends the day the booking starts does NOT overlap (check-out day is free)
     before = {

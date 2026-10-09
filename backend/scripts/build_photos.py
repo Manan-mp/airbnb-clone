@@ -5,6 +5,7 @@ The seed (app/seed.py) reads only app/seed_data/photos.json, so seeding is
 deterministic and works offline. Photo IDs are never invented: candidates come
 from candidates.json and anything that does not return 200 is dropped.
 """
+
 import json
 import sys
 from concurrent.futures import ThreadPoolExecutor

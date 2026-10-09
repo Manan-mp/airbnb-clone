@@ -1,4 +1,5 @@
 """Password hashing and JWT encode/decode. Only app.deps and the auth router import this."""
+
 from datetime import UTC, datetime, timedelta
 
 import bcrypt

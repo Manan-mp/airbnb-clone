@@ -25,4 +25,6 @@ def test_signup_duplicate_and_roles(client):
     assert r.json()["user"]["email"] == "new.user@example.com"  # normalised
     assert client.post("/api/auth/signup", json=body).status_code == 409
     assert client.post("/api/auth/signup", json={**body, "email": "x@example.com", "role": "admin"}).status_code == 422
-    assert client.post("/api/auth/signup", json={**body, "email": "y@example.com", "password": "short"}).status_code == 422
+    assert (
+        client.post("/api/auth/signup", json={**body, "email": "y@example.com", "password": "short"}).status_code == 422
+    )

@@ -1,4 +1,5 @@
 """Auth dependencies. get_current_user is the single place a bearer token becomes a User."""
+
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
