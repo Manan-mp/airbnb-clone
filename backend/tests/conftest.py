@@ -39,7 +39,8 @@ def db(engine):
         yield session
 
 
-def login(client, email="guest.riya@example.com", password="demo1234"):
+def login(client, email="jon.snow@north.com", password=None):
+    password = password or ("winteriscoming" if email.endswith("@north.com") else "demo1234")
     r = client.post("/api/auth/login", json={"email": email, "password": password})
     assert r.status_code == 200, r.text
     return {"Authorization": f"Bearer {r.json()['access_token']}"}

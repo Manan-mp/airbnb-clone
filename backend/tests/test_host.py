@@ -38,7 +38,7 @@ def new_listing(client, headers, **over):
 
 
 def test_guest_cannot_create_listing(client):
-    assert new_listing(client, login(client, "guest.riya@example.com")).status_code == 403
+    assert new_listing(client, login(client, "jon.snow@north.com")).status_code == 403
     assert new_listing(client, {}).status_code == 401
 
 
@@ -86,7 +86,7 @@ def test_delete_with_future_booking_is_409(client):
     h = login(client, HOST)
     lid = new_listing(client, h).json()["id"]
     d = fresh_dates()
-    gh = login(client, "guest.riya@example.com")
+    gh = login(client, "jon.snow@north.com")
     bid = client.post("/api/bookings", json=stay(lid, d[0], d[2]), headers=gh).json()["id"]
     assert client.delete(f"/api/listings/{lid}", headers=login(client, OTHER_HOST)).status_code == 403
     r = client.delete(f"/api/listings/{lid}", headers=h)
@@ -142,7 +142,7 @@ def test_host_bookings_scoped_to_own_listings(client, db):
     own = {lst.id for lst in db.query(Listing).filter(Listing.host_id == user_id(db, HOST))}
     rows = client.get("/api/host/bookings", headers=h).json()
     assert rows and all(b["listing"]["id"] in own for b in rows)
-    assert client.get("/api/host/bookings", headers=login(client, "guest.riya@example.com")).status_code == 403
+    assert client.get("/api/host/bookings", headers=login(client, "jon.snow@north.com")).status_code == 403
 
 
 PNG = b"\x89PNG\r\n\x1a\n" + b"\x00" * 64
@@ -161,7 +161,7 @@ def test_upload_validates_type_and_role(client, tmp_path, monkeypatch):
     )
     assert (
         client.post(
-            "/api/uploads", files={"file": ("a.png", PNG, "image/png")}, headers=login(client, "guest.riya@example.com")
+            "/api/uploads", files={"file": ("a.png", PNG, "image/png")}, headers=login(client, "jon.snow@north.com")
         ).status_code
         == 403
     )
@@ -185,4 +185,4 @@ def test_host_listings_flag_and_scope(client):
     lid = new_listing(client, h).json()["id"]
     rows = {i["id"]: i for i in client.get("/api/host/listings", headers=h).json()}
     assert rows[lid]["is_active"] is True and rows[lid]["upcoming_bookings"] == 0
-    assert client.get("/api/host/listings", headers=login(client, "guest.riya@example.com")).status_code == 403
+    assert client.get("/api/host/listings", headers=login(client, "jon.snow@north.com")).status_code == 403

@@ -20,16 +20,17 @@ from app.security import hash_password
 from app.services.pricing import compute_quote
 
 DEMO_PASSWORD = "demo1234"
+NORTH_PASSWORD = "winteriscoming"  # the Jon Snow / Winterfell demo logins
 PHOTOS = json.loads((Path(__file__).parent / "seed_data" / "photos.json").read_text())
 PHOTO_URL = PHOTOS["url_template"]
 POOLS: dict[str, list[str]] = PHOTOS["pools"]
 
 USERS = [  # (email, name, role, superhost)
-    ("host.aarav@example.com", "Aarav", "host", True),
+    ("winterfell@north.com", "Winterfell", "host", True),
     ("host.meera@example.com", "Meera", "host", True),
     ("host.kabir@example.com", "Kabir", "host", False),
     ("host.isha@example.com", "Isha", "host", False),
-    ("guest.riya@example.com", "Riya", "guest", False),
+    ("jon.snow@north.com", "Jon Snow", "guest", False),
     ("guest.dev@example.com", "Dev", "guest", False),
     ("guest.zara@example.com", "Zara", "guest", False),
 ]
@@ -166,7 +167,11 @@ def seed(db: Session, rng: random.Random | None = None) -> None:
     today = date.today()
 
     pw = hash_password(DEMO_PASSWORD)  # hash once: same demo password for every account
-    users = [User(email=e, name=n, role=r, is_superhost=s, password_hash=pw) for e, n, r, s in USERS]
+    north_pw = hash_password(NORTH_PASSWORD)
+    users = [
+        User(email=e, name=n, role=r, is_superhost=s, password_hash=north_pw if e.endswith("@north.com") else pw)
+        for e, n, r, s in USERS
+    ]
     db.add_all(users)
     amenities = {name: Amenity(name=name, icon_key=icon, group=group) for name, icon, group in AMENITIES}
     db.add_all(amenities.values())

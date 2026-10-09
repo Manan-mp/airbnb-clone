@@ -123,9 +123,14 @@ export function LoginForm({ onDone, variant = "modal" }: { onDone: () => void; v
           {mode === "login" ? "Create an account" : "Log in"}
         </button>
       </p>
-      <p className="mt-6 rounded-md bg-surface-subtle px-4 py-3 text-xs text-ink-secondary">
-        Demo accounts (password <b>demo1234</b>): guest.riya@example.com · host.aarav@example.com
-      </p>
+      <div className="mt-6 space-y-1 rounded-md bg-surface-subtle px-4 py-3 text-xs text-ink-secondary">
+        <p>
+          Guest: <b>jon.snow@north.com</b> / <b>winteriscoming</b>
+        </p>
+        <p>
+          Host: <b>winterfell@north.com</b> / <b>winteriscoming</b>
+        </p>
+      </div>
     </form>
   );
 }

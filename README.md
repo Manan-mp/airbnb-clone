@@ -15,12 +15,12 @@ An Airbnb-style stays marketplace: search with dates and guests, listing pages, 
 
 ### Demo credentials
 
-All demo accounts share the password `demo1234`.
+The two main demo accounts use the password `winteriscoming`; the other seeded accounts share `demo1234`.
 
-| Role | Email | Notes |
-|---|---|---|
-| Guest | `guest.riya@example.com` | Has upcoming and past trips (cancel one to fill the Cancelled tab) |
-| Host | `host.aarav@example.com` | Owns listings with bookings; use the host dashboard |
+| Role | Email | Display name | Notes |
+|---|---|---|---|
+| Guest | `jon.snow@north.com` | Jon Snow | Has upcoming and past trips (cancel one to fill the Cancelled tab) |
+| Host | `winterfell@north.com` | Winterfell | Owns listings with bookings; use the host dashboard |
 
 Other seeded accounts: `guest.dev@`, `guest.zara@`, `host.meera@`, `host.kabir@`, `host.isha@` (`@example.com`).
 

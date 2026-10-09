@@ -48,8 +48,8 @@ def _slow_availability(monkeypatch, delay: float = 0.3):
 
 def test_two_concurrent_bookings_exactly_one_wins(client, db, monkeypatch):
     _slow_availability(monkeypatch)
-    listing = listing_of(db, "host.aarav@example.com")
-    heads = [login(client, "guest.riya@example.com"), login(client, "guest.dev@example.com")]
+    listing = listing_of(db, "winterfell@north.com")
+    heads = [login(client, "jon.snow@north.com"), login(client, "guest.dev@example.com")]
     for _ in range(3):  # repeat to make a lucky pass unlikely
         d = fresh_dates()
         payload = stay(listing.id, d[0], d[3])
@@ -72,7 +72,7 @@ def test_many_concurrent_overlapping_bookings(client, db, monkeypatch):
     listing = listing_of(db, "host.meera@example.com")
     d = fresh_dates()
     heads = [
-        login(client, e) for e in ("guest.riya@example.com", "guest.dev@example.com", "guest.zara@example.com")
+        login(client, e) for e in ("jon.snow@north.com", "guest.dev@example.com", "guest.zara@example.com")
     ] * 2
     codes = _race(6, stay(listing.id, d[0], d[2]), heads)
     assert codes.count(201) == 1 and codes.count(409) == 5, codes

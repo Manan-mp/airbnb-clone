@@ -4,12 +4,12 @@ from tests.conftest import login
 def test_login_and_me(client):
     h = login(client)
     me = client.get("/api/auth/me", headers=h).json()
-    assert me["email"] == "guest.riya@example.com" and me["role"] == "guest"
+    assert me["email"] == "jon.snow@north.com" and me["role"] == "guest"
     assert "password" not in str(me)
 
 
 def test_wrong_password_is_401(client):
-    r = client.post("/api/auth/login", json={"email": "guest.riya@example.com", "password": "nope-nope"})
+    r = client.post("/api/auth/login", json={"email": "jon.snow@north.com", "password": "nope-nope"})
     assert r.status_code == 401
 
 

@@ -7,9 +7,9 @@ from app.services.pricing import compute_quote
 from tests.conftest import login
 from tests.helpers import fresh_dates, listing_of, stay, user_id
 
-HOST = "host.aarav@example.com"
+HOST = "winterfell@north.com"
 OTHER_HOST = "host.meera@example.com"
-GUEST = "guest.riya@example.com"
+GUEST = "jon.snow@north.com"
 OTHER_GUEST = "guest.dev@example.com"
 
 
@@ -190,7 +190,7 @@ def test_reviews_only_after_stay_once_by_guest(client, db):
         == 403
     )
     r = client.post(f"/api/bookings/{past.id}/review", json=REVIEW, headers=login(client, GUEST))
-    assert r.status_code == 201 and r.json()["author"]["name"] == "Riya"
+    assert r.status_code == 201 and r.json()["author"]["name"] == "Jon Snow"
     assert client.post(f"/api/bookings/{past.id}/review", json=REVIEW, headers=login(client, GUEST)).status_code == 409
 
     detail = client.get(f"/api/listings/{listing.id}").json()
