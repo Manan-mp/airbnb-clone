@@ -162,7 +162,7 @@ export function MobileReserveBar({ listing, dates, guests, nights, quote, onRese
   const hasDates = !!(dates.start && dates.end);
   const q = quote.status === "ready" ? quote.quote : null;
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line-soft bg-surface px-6 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 md:hidden">
+    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line-soft bg-surface px-6 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 lg:hidden">
       {hasDates ? (
         <div className="flex items-baseline justify-between gap-3">
           <p className="text-md font-semibold">{q ? `${formatPrice(q.total)} total` : formatPrice(listing.price_per_night)}</p>
@@ -311,7 +311,7 @@ export function AvailabilitySection({
     <section id="calendar" className="hidden scroll-mt-24 border-b border-line-soft py-12 md:block">
       <h2 className="text-xl font-medium">{heading}</h2>
       <p className="mb-8 mt-1 text-base text-ink-secondary">{sub}</p>
-      <DateRangeCalendar value={dates} onChange={onDates} isNightBlocked={isNightBlocked} cell={42} />
+      <DateRangeCalendar value={dates} onChange={onDates} isNightBlocked={isNightBlocked} cell={42} responsiveMonths />
       <div className="mt-4 text-right">
         <button
           type="button"

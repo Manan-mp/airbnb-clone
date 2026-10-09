@@ -3,10 +3,10 @@
 import { ChevronLeft, ChevronRight, Share, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { imgSrc } from "@/lib/img";
 import type { ListingDetail } from "@/lib/types";
 import { SaveButton } from "../HeartButton";
 import { useShare } from "./share";
+import { SafeImg } from "@/components/ui/SafeImg";
 
 type Photo = ListingDetail["photo_details"][number];
 
@@ -48,7 +48,7 @@ export function PhotoTour({ listing, startIndex, onClose }: { listing: ListingDe
         <div className="scrollbar-none mb-12 flex gap-3 overflow-x-auto pb-2">
           {photos.map((p, i) => (
             <button key={p.id} type="button" onClick={() => sections.current[i]?.scrollIntoView({ behavior: "smooth" })} className="w-[148px] shrink-0 text-left">
-              <img src={imgSrc(p.url, 320)} alt="" className="aspect-[4/3] w-full rounded-xs object-cover shadow-badge" />
+              <SafeImg src={p.url} width={320} alt="" className="aspect-[4/3] w-full rounded-xs object-cover shadow-badge" />
               <span className="mt-2 block truncate text-sm">{p.caption ?? `Photo ${i + 1}`}</span>
             </button>
           ))}
@@ -59,7 +59,7 @@ export function PhotoTour({ listing, startIndex, onClose }: { listing: ListingDe
             <section key={p.id} ref={(el) => void (sections.current[i] = el)} className="grid gap-4 scroll-mt-20 md:grid-cols-[378px_1fr] md:gap-0">
               <h3 className="text-xl font-medium">{p.caption ?? `Photo ${i + 1}`}</h3>
               <button type="button" onClick={() => setLightbox(i)} aria-label={`Open ${p.caption ?? `photo ${i + 1}`} full screen`} className="block overflow-hidden rounded-xs">
-                <img src={imgSrc(p.url, 1200)} alt={p.caption ?? listing.title} loading="lazy" className="w-full object-cover" />
+                <SafeImg src={p.url} width={1200} alt={p.caption ?? listing.title} loading="lazy" className="w-full object-cover" />
               </button>
             </section>
           ))}
@@ -102,7 +102,7 @@ export function Lightbox({ photos, index, onChange, onClose }: { photos: Photo[]
         <button type="button" aria-label="Previous photo" onClick={() => go(-1)} className="absolute left-3 flex size-10 items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/30 md:left-6">
           <ChevronLeft size={20} />
         </button>
-        <img src={imgSrc(p.url, 1600)} alt={p.caption ?? ""} className="max-h-full max-w-full object-contain" />
+        <SafeImg src={p.url} width={1600} alt={p.caption ?? ""} className="max-h-full max-w-full object-contain" />
         <button type="button" aria-label="Next photo" onClick={() => go(1)} className="absolute right-3 flex size-10 items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/30 md:right-6">
           <ChevronRight size={20} />
         </button>

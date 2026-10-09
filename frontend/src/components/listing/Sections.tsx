@@ -15,8 +15,9 @@ export const section = "border-b border-line-soft py-8 md:py-12";
 export const sectionTitle = "text-xl font-medium";
 
 export function Avatar({ name, url, size = 48 }: { name: string; url: string | null; size?: number }) {
-  return url ? (
-    <img src={url} alt="" style={{ width: size, height: size }} className="shrink-0 rounded-full object-cover" />
+  const [failed, setFailed] = useState(false);
+  return url && !failed ? (
+    <img src={url} alt="" onError={() => setFailed(true)} style={{ width: size, height: size }} className="shrink-0 rounded-full object-cover" />
   ) : (
     <span
       style={{ width: size, height: size }}

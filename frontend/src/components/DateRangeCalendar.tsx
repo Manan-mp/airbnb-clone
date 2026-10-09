@@ -19,6 +19,8 @@ type Props = {
   months?: number;
   /** Stacked, scrollable months (mobile sheets). */
   vertical?: boolean;
+  /** Show the second month only where its column is wide enough (md to lg, and xl up). */
+  responsiveMonths?: boolean;
   /** Day cell size in px. */
   cell?: number;
   className?: string;
@@ -33,6 +35,7 @@ export function DateRangeCalendar({
   isNightBlocked,
   months = 2,
   vertical = false,
+  responsiveMonths = false,
   cell = 42,
   className,
 }: Props) {
@@ -103,9 +106,9 @@ export function DateRangeCalendar({
         </>
       )}
       <div className={clsx(vertical ? "flex flex-col gap-8" : "flex justify-center gap-10")}>
-        {monthList.map((m) => (
+        {monthList.map((m, i) => (
+          <div key={m.toISOString()} className={clsx(responsiveMonths && i > 0 && "hidden md:block lg:hidden xl:block")}>
           <Month
-            key={m.toISOString()}
             month={m}
             cell={cell}
             vertical={vertical}
@@ -116,6 +119,7 @@ export function DateRangeCalendar({
             onPick={pick}
             onHover={setHover}
           />
+          </div>
         ))}
       </div>
     </div>

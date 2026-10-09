@@ -162,7 +162,7 @@ function ListingContent({ listing }: { listing: ListingDetail }) {
         onReserve={hasDates ? onReserve : pickDatesDesktop}
       />
 
-      <main className="mx-auto max-w-content pb-40 md:px-8 md:pb-0 xl:px-0">
+      <main className="mx-auto max-w-content pb-40 md:px-8 lg:pb-0 xl:px-0">
         {/* title row + gallery (desktop) */}
         <div className="hidden pt-5 md:block">
           <div className="mb-[26px] flex items-end justify-between gap-4">
@@ -183,7 +183,7 @@ function ListingContent({ listing }: { listing: ListingDetail }) {
         <div className="relative -mt-6 rounded-t-modal bg-surface px-6 pt-8 md:mt-0 md:rounded-none md:px-0 md:pt-8">
           <h1 className="mb-6 text-center text-2xl font-medium md:hidden">{listing.title}</h1>
 
-          <div className="grid gap-x-24 md:grid-cols-[minmax(0,1fr)_var(--container-reserve)]">
+          <div className="grid gap-x-12 lg:grid-cols-[minmax(0,1fr)_var(--container-reserve)] 2xl:gap-x-24">
             <div className="min-w-0">
               <div className="border-b border-line-soft pb-6 text-center md:text-left">
                 <h2 className="text-xl font-medium">
@@ -234,7 +234,7 @@ function ListingContent({ listing }: { listing: ListingDetail }) {
               <AvailabilitySection listing={listing} dates={stay.dates} nights={stay.nights} onDates={stay.setDates} isNightBlocked={isNightBlocked} />
             </div>
 
-            <div ref={columnRef} className="hidden md:block">
+            <div ref={columnRef} className="hidden lg:block">
               <div ref={cardRef} className="sticky top-[var(--spacing-header-compact)] pb-12 pt-4">
                 <ReserveCard {...stayProps} onPickDates={pickDatesDesktop} />
               </div>
