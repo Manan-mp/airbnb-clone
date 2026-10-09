@@ -50,6 +50,8 @@ export function ProfileMenu() {
               <p className="px-4 py-2 text-base font-semibold">{user.name}</p>
               <Link role="menuitem" href="/trips" className={item} onClick={() => setOpen(false)}>Trips</Link>
               <Link role="menuitem" href="/wishlists" className={item} onClick={() => setOpen(false)}>Wishlists</Link>
+              <Link role="menuitem" href="/messages" className={item} onClick={() => setOpen(false)}>Messages</Link>
+              <Link role="menuitem" href="/identity-verification" className={item} onClick={() => setOpen(false)}>Identity verification</Link>
               {user.role === "host" && (
                 <Link role="menuitem" href="/host" className={item} onClick={() => setOpen(false)}>Host dashboard</Link>
               )}

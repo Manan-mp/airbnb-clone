@@ -1,4 +1,20 @@
-import type { Amenity, Availability, Category, ListingDetail, ListingPage, Quote, ReviewPage, TokenResponse, User } from "./types";
+import type {
+  Amenity,
+  Availability,
+  Booking,
+  BookingInput,
+  Category,
+  ListingCard,
+  ListingDetail,
+  ListingPage,
+  Quote,
+  Review,
+  ReviewInput,
+  ReviewPage,
+  TokenResponse,
+  TripTab,
+  User,
+} from "./types";
 
 export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 const TOKEN_KEY = "staybnb.token";
@@ -53,4 +69,11 @@ export const api = {
   me: () => request<User>("/auth/me"),
   addWishlist: (id: number) => request<void>(`/wishlist/${id}`, { method: "PUT" }),
   removeWishlist: (id: number) => request<void>(`/wishlist/${id}`, { method: "DELETE" }),
+  wishlist: () => request<ListingCard[]>("/wishlist"),
+  createBooking: (body: BookingInput) => request<Booking>("/bookings", { method: "POST", body: JSON.stringify(body) }),
+  booking: (id: number | string) => request<Booking>(`/bookings/${id}`),
+  trips: (tab: TripTab) => request<Booking[]>(`/bookings/me?status=${tab}`),
+  cancelBooking: (id: number) => request<Booking>(`/bookings/${id}/cancel`, { method: "POST" }),
+  reviewBooking: (id: number, body: ReviewInput) =>
+    request<Review>(`/bookings/${id}/review`, { method: "POST", body: JSON.stringify(body) }),
 };

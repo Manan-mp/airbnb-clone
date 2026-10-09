@@ -89,7 +89,7 @@ No account was created, nothing was typed into forms, nothing was booked.
 - **assumption:** on phones the results page shows the placeholder map with the list in a rounded sheet over it (fixed, not draggable).
 - **assumption:** home is a responsive grid (2 columns on phones at 165px cards, up to 6 at 1440) with a category row and numbered pagination (24 per page); results use 20 per page.
 - **assumption:** the mobile "When?" step shows only the exact-dates calendar (no Flexible tab / ±N day chips).
-- Login/sign-up is a modal on every width for now (the reference uses a `/login` page on phones).
+- Login/sign-up is a modal on desktop; phones use the `/login` page (Phase 5).
 
 ## Phase 4 implementation notes (listing page)
 - Layout measured from the reference: content 1120 wide; 5-photo grid 560/272/272 columns, 238/230 rows; sticky reserve column 373 wide at `top: 80px`; calendar cell 42px.
@@ -101,3 +101,14 @@ No account was created, nothing was typed into forms, nothing was booked.
 - **assumption:** archived listings answer 410 and show "This listing is no longer available"; unknown or non-numeric ids show "We can't find that place".
 - **assumption:** the location block is a static placeholder pin with "exact location shared after booking".
 - **assumption:** "Message host" is shown disabled ("coming soon").
+
+## Phase 5 implementation notes (booking, trips, wishlists, auth)
+- **assumption:** the reserve page `/book/[id]` ("Confirm and pay") was never captured, so it follows the standard Airbnb layout: back arrow + title; left column = Your trip (dates and guests, each with an Edit link that opens a modal), Pay with (mocked card), Cancellation policy, Confirm and pay button; right column = sticky summary card (photo, title, rating, price breakdown from the server quote) at `top: 80px`, 373 wide from 950px up. On phones the listing summary sits at the top and Price details follows Your trip.
+- **assumption:** payment is a demo: card number (13-19 digits), MM/YY, CVV (3-4 digits) and a 6-digit PIN code are format-checked only, never sent to the backend or stored.
+- **assumption:** guards on `/book/[id]` show an in-page message instead of redirecting: logged out ("Log in to complete your booking" with the login button), own listing, and missing / malformed / reversed / past dates (link back to the listing). Unknown listings show "We can't find that place". Server errors on the quote (guest cap, pets, dates taken) show inline and disable the button.
+- **assumption:** a 409 on Confirm shows an error toast with a "Back to listing" link plus a persistent inline notice, and disables the button until the dates change. Success replaces the URL with `/book/[id]/confirmed?booking=<id>` (a reload cannot double-book) showing a reference `SB000123` and a "View my trips" button.
+- **assumption:** cancellation policy text matches the backend rule: free cancellation any time before check-in, none after.
+- **assumption:** `/trips` has Upcoming / Past / Cancelled tabs (`?tab=`), booking cards with photo, dates, guests, total, reference. Cancel is offered only before check-in day and opens a confirm modal; a Past stay offers "Leave a review" (overall + six sub-ratings required, optional comment, one per booking) or "You reviewed this stay".
+- **assumption:** `/wishlists` is the home grid with a heart that removes the card, an empty state ("No saved places yet"), and a login prompt when logged out.
+- **assumption:** `/login` on phones is the same email + password form as the modal (the reference's single "phone or email" field and Google / Apple buttons are not built: no OAuth or phone auth). After logging in it returns to the page that asked (`?next=`) and runs the pending action, e.g. the heart.
+- **assumption:** profile menu (logged in): Trips, Wishlists, Messages, Identity verification, Host dashboard (hosts only), Log out. Messages and Identity verification are "Coming soon" pages.

@@ -34,3 +34,21 @@ export function guestSummary(adults: number, children: number, infants: number, 
   if (pets) parts.push(`${pets} pet${pets > 1 ? "s" : ""}`);
   return parts.join(", ");
 }
+
+const withYear = new Intl.DateTimeFormat("en-IN", { day: "numeric", month: "short", year: "numeric" });
+const noYear = new Intl.DateTimeFormat("en-IN", { day: "numeric", month: "short" });
+
+/** "12 – 16 Oct 2026" (the year is shown once when both dates share it). */
+export function formatRangeYear(checkIn: string, checkOut: string): string {
+  const a = fromISO(checkIn);
+  const b = fromISO(checkOut);
+  if (a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth()) return `${a.getDate()} – ${withYear.format(b)}`;
+  return a.getFullYear() === b.getFullYear()
+    ? `${noYear.format(a)} – ${withYear.format(b)}`
+    : `${withYear.format(a)} – ${withYear.format(b)}`;
+}
+
+export const formatDay = (iso: string) => withYear.format(fromISO(iso));
+
+/** Booking reference shown to the guest. */
+export const bookingRef = (id: number) => `SB${String(id).padStart(6, "0")}`;

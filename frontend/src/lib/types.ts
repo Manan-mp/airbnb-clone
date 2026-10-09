@@ -79,3 +79,44 @@ export type Review = {
 };
 export type ReviewPage = { items: Review[]; total: number; page: number; page_size: number };
 export type Availability = { booked: { check_in: string; check_out: string }[] };
+
+export type Booking = {
+  id: number;
+  listing: { id: number; title: string; city: string; state: string; photo: string | null; host_name: string };
+  guest_name: string;
+  check_in: string;
+  check_out: string;
+  adults: number;
+  children: number;
+  infants: number;
+  pets: number;
+  nights: number;
+  nightly_price: number;
+  cleaning_fee: number;
+  service_fee: number;
+  total_price: number;
+  status: "confirmed" | "cancelled";
+  created_at: string;
+  has_review: boolean;
+  can_review: boolean;
+};
+export type TripTab = "upcoming" | "past" | "cancelled";
+export type ReviewInput = {
+  rating: number;
+  cleanliness: number;
+  accuracy: number;
+  check_in_rating: number;
+  communication: number;
+  location: number;
+  value: number;
+  comment: string;
+};
+export type BookingInput = {
+  listing_id: number;
+  check_in: string;
+  check_out: string;
+  adults: number;
+  children: number;
+  infants: number;
+  pets: number;
+};
