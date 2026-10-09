@@ -307,6 +307,3 @@ pytest
 - **The demo data resets on reseed.** `python -m app.seed --reset` drops and recreates every table, which also erases bookings, reviews and listings people created. The seed is deterministic (48 listings across 8 cities, 7 accounts, past and upcoming bookings, reviews, and a distinct cover photo for each listing). Uploaded files live on the Railway volume at `/data/media`, so they survive redeploys; a reseed does not delete the files, only the rows that referenced them. Reseeding production needs a one-off start command (`python -m app.seed --reset && uvicorn ...`) because there is no shell access; `SEED_ON_STARTUP` seeds only an empty database.
 - **Dates and time zones** use the server's calendar date for "past", "upcoming" and "before check-in".
 
-## AI tools disclosure
-
-This project was built with **Claude Code** (Anthropic's CLI agent, Claude Sonnet models) working under the author's direction. The assistant wrote most of the code, tests and documentation, and also did the measurement of the reference site, the browser-based visual checks, the Lighthouse runs and the deployments. The author set the requirements and phases, reviewed the results, and chose what to ship. Design values were measured from the public reference site with browser tooling, and no Airbnb code, fonts, icons, logos or images were copied.
