@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.pyc
+backend/.venv/
+backend/.env
+backend/*.db
+backend/*.db-*
+backend/media/
+.pytest_cache/
+
+# Node
+frontend/node_modules/
+frontend/.next/
+frontend/.env*.local
+
+# OS / editor
+.DS_Store
+.claude/settings.local.json
+
+# Airbnb reference screenshots stay local (public repo must not contain them).
+# Keep the written notes.
+design-ref/*
+!design-ref/design-tokens.md
+!design-ref/ux-notes.md
