@@ -16,10 +16,11 @@ import { Pagination } from "./Pagination";
 import { activeFilterCount, stateFromParams, toQuery, type SearchState } from "@/lib/search";
 import { useCatalog } from "@/lib/useCatalog";
 import { useListings } from "@/lib/useListings";
+import type { ListingPage } from "@/lib/types";
 
 const QUICK_CHIPS = ["Wifi", "Free parking", "Washing machine", "Kitchen", "Air conditioning"];
 
-export function ListingsView({ variant }: { variant: "home" | "search" }) {
+export function ListingsView({ variant, initial }: { variant: "home" | "search"; initial?: { qs: string; data: ListingPage } | null }) {
   const params = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
@@ -31,7 +32,8 @@ export function ListingsView({ variant }: { variant: "home" | "search" }) {
   const page = Math.max(1, Number(params.get("page")) || 1);
   const pageSize = variant === "home" ? 24 : 20;
   const qs = useMemo(() => toQuery(state, { page, page_size: pageSize }), [state, page, pageSize]);
-  const listings = useListings(qs, user?.id);
+  const [attempt, setAttempt] = useState(0);
+  const listings = useListings(qs, `${user?.id}-${attempt}`, initial);
   const data = listings.data;
 
   const push = useCallback(
@@ -107,9 +109,13 @@ export function ListingsView({ variant }: { variant: "home" | "search" }) {
   const grid = (
     <>
       {listings.status === "error" && (
-        <p role="alert" className="py-12 text-center text-md text-brand-deep">
-          We couldn’t load stays right now. {listings.message}
-        </p>
+        <div role="alert" className="py-16 text-center" data-testid="listings-error">
+          <h2 className="text-xl font-semibold">We couldn’t load stays right now</h2>
+          <p className="mt-2 text-md text-ink-secondary">{listings.message}</p>
+          <button type="button" onClick={() => setAttempt((n) => n + 1)} className="mt-6 rounded-md bg-ink px-6 py-3 text-md font-medium text-white transition-transform duration-200 ease-airy active:scale-[0.98]">
+            Try again
+          </button>
+        </div>
       )}
       {data && data.items.length === 0 && listings.status !== "loading" && (
         <div className="py-20 text-center">
@@ -120,7 +126,7 @@ export function ListingsView({ variant }: { variant: "home" | "search" }) {
           </button>
         </div>
       )}
-      <div className={clsx(gridClass, listings.status === "loading" && data && "opacity-60 transition-opacity")}>
+      <div className={clsx(gridClass, listings.status === "loading" && data && "opacity-60 transition-opacity", listings.status === "error" && !data && "hidden")}>
         {data
           ? data.items.map((l, i) => (
               <ListingCard
@@ -153,7 +159,10 @@ export function ListingsView({ variant }: { variant: "home" | "search" }) {
         mobileAction={<FiltersButtonMobile count={filterCount} onClick={() => setFiltersOpen(true)} />}
       />
       {variant === "home" ? (
-        <main className="px-6 pb-8 pt-8 md:px-8 xl:px-12">{grid}</main>
+        <main className="px-6 pb-8 pt-8 md:px-8 xl:px-12">
+          <h1 className="sr-only">Find your next stay</h1>
+          {grid}
+        </main>
       ) : (
         <>
           <div className="md:hidden">

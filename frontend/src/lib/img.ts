@@ -1,4 +1,6 @@
-/** Unsplash URLs carry a width parameter; request only what the viewport needs. */
+/** Unsplash URLs carry width and quality parameters; request only what the viewport needs. */
 export function imgSrc(url: string, width: number): string {
-  return url.includes("images.unsplash.com") ? url.replace(/w=\d+/, `w=${width}`) : url;
+  if (!url.includes("images.unsplash.com")) return url;
+  const quality = width <= 800 ? 60 : 70;
+  return url.replace(/w=\d+/, `w=${width}`).replace(/q=\d+/, `q=${quality}`);
 }

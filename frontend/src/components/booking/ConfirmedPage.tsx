@@ -6,11 +6,11 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { bookingRef, formatPrice, formatRangeYear, guestSummary } from "@/lib/format";
-import { imgSrc } from "@/lib/img";
 import type { Booking } from "@/lib/types";
 import { useAuth } from "../AuthProvider";
 import { PageShell } from "../PageShell";
 import { LoginPrompt, StatePanel } from "../StatePanel";
+import { SafeImg } from "@/components/ui/SafeImg";
 
 type State = { status: "loading" } | { status: "ready"; booking: Booking } | { status: "error"; message: string };
 
@@ -53,7 +53,7 @@ export function ConfirmedPage() {
 
         <div className="mt-8 overflow-hidden rounded-md border border-line">
           <div className="aspect-gallery bg-surface-control">
-            {b.listing.photo && <img src={imgSrc(b.listing.photo, 1000)} alt="" className="size-full object-cover" />}
+            {b.listing.photo && <SafeImg src={b.listing.photo} width={1000} alt="" className="size-full object-cover" />}
           </div>
           <div className="p-6">
             <h2 className="text-lg font-semibold">{b.listing.title}</h2>

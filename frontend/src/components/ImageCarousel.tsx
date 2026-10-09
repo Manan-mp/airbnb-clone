@@ -3,7 +3,7 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { clsx } from "clsx";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { imgSrc } from "@/lib/img";
+import { SafeImg } from "./ui/SafeImg";
 
 /** Scroll-snap photo strip with hover arrows and dots. Navigation never follows the card link. */
 export function ImageCarousel({ photos, alt, priority, aspect }: { photos: string[]; alt: string; priority?: boolean; aspect: string }) {
@@ -32,9 +32,13 @@ export function ImageCarousel({ photos, alt, priority, aspect }: { photos: strin
     <div className="group relative overflow-hidden rounded-card" style={{ aspectRatio: aspect }}>
       <div ref={track} className="scrollbar-none flex h-full snap-x snap-mandatory overflow-x-auto">
         {photos.map((url, i) => (
-          <img
+          <SafeImg
             key={url}
-            src={imgSrc(url, 640)}
+            src={url}
+            width={640}
+            widths={[240, 360, 480, 640]}
+            sizes="(min-width:1440px) 16vw, (min-width:1128px) 20vw, (min-width:744px) 33vw, calc(50vw - 24px)"
+            fetchPriority={priority && i === 0 ? "high" : undefined}
             alt={i === 0 ? alt : ""}
             loading={priority && i === 0 ? "eager" : "lazy"}
             decoding="async"

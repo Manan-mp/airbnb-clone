@@ -21,6 +21,7 @@ export function LoginForm({ onDone, variant = "modal" }: { onDone: () => void; v
   const [busy, setBusy] = useState(false);
   // The phone page mirrors the reference: one email field first, the password after Continue.
   const [step, setStep] = useState<"email" | "password">("email");
+  const Title = variant === "page" ? "h1" : "h2";
   const emailOnly = variant === "page" && mode === "login" && step === "email";
 
   async function submit(e: React.FormEvent) {
@@ -50,9 +51,9 @@ export function LoginForm({ onDone, variant = "modal" }: { onDone: () => void; v
       <div className="mb-4 flex justify-center">
         <Logo />
       </div>
-      <h3 className="mb-6 text-center text-2xl font-semibold">
+      <Title className="mb-6 text-center text-2xl font-semibold">
         {mode === "login" ? "Log in or sign up" : "Create your account"}
-      </h3>
+      </Title>
       <div className="overflow-hidden rounded-md border border-ink-muted">
         {mode === "signup" && <Field label="Name" value={name} onChange={setName} autoComplete="name" required />}
         <Field

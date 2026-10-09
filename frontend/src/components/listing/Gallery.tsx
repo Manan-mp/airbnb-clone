@@ -21,7 +21,7 @@ export function PhotoGrid({ photos, title, onOpen }: { photos: ListingDetail["ph
         style={{ gridTemplateColumns: cols, gridTemplateRows: n === 1 ? "1fr" : "238fr 230fr" }}
       >
         <button type="button" onClick={() => onOpen(0)} className="group relative row-span-2 overflow-hidden" aria-label="Open photo 1">
-          <SafeImg src={photos[0].url} width={1200} alt={title} className="size-full object-cover transition-[filter] duration-300 ease-airy group-hover:brightness-90" />
+          <SafeImg src={photos[0].url} width={1200} alt={title} loading="lazy" className="size-full object-cover transition-[filter] duration-300 ease-airy group-hover:brightness-90" />
         </button>
         {tiles.map((p, i) => (
           <button
@@ -73,7 +73,7 @@ export function MobileHero({
       <div ref={track} className="scrollbar-none flex aspect-[390/347] snap-x snap-mandatory overflow-x-auto bg-surface-control">
         {photos.map((p, i) => (
           <button key={p.id} type="button" onClick={onOpen} aria-label={`Open photo ${i + 1}`} className="size-full shrink-0 snap-center">
-            <SafeImg src={p.url} width={900} alt={i === 0 ? listing.title : ""} loading={i === 0 ? "eager" : "lazy"} className="size-full object-cover" />
+            <SafeImg src={p.url} width={900} alt={i === 0 ? listing.title : ""} loading={i === 0 ? "eager" : "lazy"} fetchPriority={i === 0 ? "high" : undefined} className="size-full object-cover" />
           </button>
         ))}
       </div>

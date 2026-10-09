@@ -48,7 +48,7 @@ function Dashboard() {
   }, [load]);
 
   let body: React.ReactNode;
-  if (error) body = <StatePanel title="We couldn’t load your dashboard" body={error} action={{ label: "Try again", onClick: load }} />;
+  if (error) body = <StatePanel heading="h2" title="We couldn’t load your dashboard" body={error} action={{ label: "Try again", onClick: load }} />;
   else if (!items) body = <p className="py-10 text-md text-ink-secondary" aria-busy="true">Loading…</p>;
   else if (tab === "listings") body = <ListingsTab items={items} onDelete={setToDelete} />;
   else body = <BookingsTab listings={items} />;

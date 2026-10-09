@@ -10,7 +10,7 @@ import { SafeImg } from "@/components/ui/SafeImg";
 
 export function ListingsTab({ items, onDelete }: { items: HostListing[]; onDelete: (l: HostListing) => void }) {
   if (items.length === 0)
-    return <StatePanel title="You have no listings yet" body="Create your first listing and start welcoming guests." action={{ label: "Create a listing", href: "/host/listings/new" }} testId="host-empty" />;
+    return <StatePanel heading="h2" title="You have no listings yet" body="Create your first listing and start welcoming guests." action={{ label: "Create a listing", href: "/host/listings/new" }} testId="host-empty" />;
 
   const head = "hidden text-base text-ink-secondary lg:block";
   return (

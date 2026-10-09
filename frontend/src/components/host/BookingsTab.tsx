@@ -51,8 +51,8 @@ export function BookingsTab({ listings }: { listings: HostListing[] }) {
 
   let body: React.ReactNode;
   if (!current) body = <p className="py-10 text-md text-ink-secondary" aria-busy="true">Loading bookings…</p>;
-  else if (current.status === "error") body = <StatePanel title="We couldn’t load bookings" body={current.message} />;
-  else if (current.items.length === 0) body = <StatePanel title="No bookings found" body="Try a different listing or status." testId="host-bookings-empty" />;
+  else if (current.status === "error") body = <StatePanel heading="h2" title="We couldn’t load bookings" body={current.message} />;
+  else if (current.items.length === 0) body = <StatePanel heading="h2" title="No bookings found" body="Try a different listing or status." testId="host-bookings-empty" />;
   else {
     const totalPages = Math.ceil(current.items.length / PAGE_SIZE);
     const p = Math.min(page, totalPages);

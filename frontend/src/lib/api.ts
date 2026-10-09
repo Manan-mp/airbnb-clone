@@ -44,7 +44,13 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   const token = tokenStore.get();
   if (token) headers.set("Authorization", `Bearer ${token}`);
   if (init.body && !(init.body instanceof FormData) && !headers.has("Content-Type")) headers.set("Content-Type", "application/json");
-  const res = await fetch(`${API_URL}/api${path}`, { ...init, headers });
+  let res: Response;
+  try {
+    res = await fetch(`${API_URL}/api${path}`, { ...init, headers });
+  } catch (e) {
+    if (e instanceof DOMException && e.name === "AbortError") throw e;
+    throw new ApiError(0, "We can’t reach the server right now. Check your connection and try again.");
+  }
   if (!res.ok) {
     let message = `Request failed (${res.status})`;
     const fields: Record<string, string> = {};

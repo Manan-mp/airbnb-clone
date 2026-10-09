@@ -34,12 +34,12 @@ export default function WishlistsPage() {
 
   let body: React.ReactNode;
   if (!ready) body = <Skeleton />;
-  else if (!user) body = <LoginPrompt icon={Heart} title="Log in to see your wishlists" body="Save the places you love and find them here later." />;
+  else if (!user) body = <LoginPrompt heading="h2" icon={Heart} title="Log in to see your wishlists" body="Save the places you love and find them here later." />;
   else if (state.status === "loading") body = <Skeleton />;
   else if (state.status === "error")
-    body = <StatePanel title="We couldn’t load your wishlist" body={state.message} action={{ label: "Try again", onClick: () => { setState({ status: "loading" }); setAttempt((n) => n + 1); } }} />;
+    body = <StatePanel heading="h2" title="We couldn’t load your wishlist" body={state.message} action={{ label: "Try again", onClick: () => { setState({ status: "loading" }); setAttempt((n) => n + 1); } }} />;
   else if (state.items.length === 0)
-    body = <StatePanel icon={Heart} title="No saved places yet" body="As you search, tap the heart on any listing to save it here." action={{ label: "Start exploring", href: "/" }} testId="wishlist-empty" />;
+    body = <StatePanel heading="h2" icon={Heart} title="No saved places yet" body="As you search, tap the heart on any listing to save it here." action={{ label: "Start exploring", href: "/" }} testId="wishlist-empty" />;
   else
     body = (
       <>

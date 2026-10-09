@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ApiError, api } from "@/lib/api";
 import { formatDay, formatPrice, fromISO, guestSummary, toISO, formatRating } from "@/lib/format";
-import { imgSrc } from "@/lib/img";
 import type { ListingDetail } from "@/lib/types";
 import { useBlockedNights, useQuote, useStay } from "@/lib/useStay";
 import { useAuth } from "../AuthProvider";
@@ -18,6 +17,7 @@ import { useToast } from "../ui/Toast";
 import { CardForm } from "./CardForm";
 import { validateCard, type CardErrors, type CardFields } from "./cardFormat";
 import { DatesModal, GuestsModal } from "./EditModals";
+import { SafeImg } from "@/components/ui/SafeImg";
 
 type Load =
   | { id: string; status: "ok"; listing: ListingDetail }
@@ -191,7 +191,7 @@ function BookingContent({ listing }: { listing: ListingDetail }) {
   const mini = (
     <div className="flex gap-4">
       <div className="aspect-card w-28 shrink-0 overflow-hidden rounded-sm bg-surface-control">
-        {listing.photos[0] && <img src={imgSrc(listing.photos[0], 400)} alt="" className="size-full object-cover" />}
+        {listing.photos[0] && <SafeImg src={listing.photos[0]} width={400} alt="" className="size-full object-cover" />}
       </div>
       <div className="min-w-0">
         <p className="text-base text-ink-secondary">{room}</p>

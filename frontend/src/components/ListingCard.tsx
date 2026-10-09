@@ -27,7 +27,7 @@ export function ListingCard({
 
   return (
     <article className="relative">
-      <Link href={href} className="block outline-offset-4" aria-label={listing.title}>
+      <Link href={href} className="block outline-offset-4">
         <ImageCarousel photos={listing.photos} alt={listing.title} priority={priority} aspect={aspect} />
         <div className="mt-3 flex items-start justify-between gap-3">
           <h3 className="truncate text-sm font-medium">

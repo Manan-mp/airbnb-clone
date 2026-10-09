@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { api, tokenStore } from "@/lib/api";
+import { ApiError, api, tokenStore } from "@/lib/api";
 import type { User } from "@/lib/types";
 import { isPhoneNow } from "@/lib/useIsPhone";
 import { LoginModal } from "./LoginModal";
@@ -39,7 +39,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     Promise.resolve(tokenStore.get() ? api.me() : null)
       .then(setUser)
-      .catch(() => tokenStore.clear())
+      .catch((e) => {
+        // only a rejected token ends the session; a network blip must not log the user out
+        if (e instanceof ApiError && e.status === 401) tokenStore.clear();
+      })
       .finally(() => setReady(true));
   }, []);
 

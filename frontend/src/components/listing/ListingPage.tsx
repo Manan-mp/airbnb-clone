@@ -24,8 +24,9 @@ type Load =
   | { id: string; status: "ok"; listing: ListingDetail }
   | { id: string; status: "missing" | "gone" | "error"; message: string };
 
-export function ListingPage({ id }: { id: string }) {
-  const [load, setLoad] = useState<Load | null>(null);
+export function ListingPage({ id, initial }: { id: string; initial?: ListingDetail | null }) {
+  // `initial` is the server-rendered listing (anonymous view); it is always refetched so per-user bits stay right.
+  const [load, setLoad] = useState<Load | null>(initial && String(initial.id) === id ? { id, status: "ok", listing: initial } : null);
   const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
@@ -36,11 +37,16 @@ export function ListingPage({ id }: { id: string }) {
       .catch((e: unknown) => {
         if (cancelled) return;
         const status = e instanceof ApiError ? e.status : 0;
-        setLoad({
-          id,
-          status: status === 404 || status === 422 ? "missing" : status === 410 ? "gone" : "error", // 422: id is not a number
-          message: e instanceof Error ? e.message : "Something went wrong",
-        });
+        setLoad((prev) =>
+          // keep the server-rendered listing when only the refresh failed (e.g. offline)
+          prev && prev.id === id && prev.status === "ok"
+            ? prev
+            : {
+                id,
+                status: status === 404 || status === 422 ? "missing" : status === 410 ? "gone" : "error", // 422: id is not a number
+                message: e instanceof Error ? e.message : "Something went wrong",
+              },
+        );
       });
     return () => {
       cancelled = true;

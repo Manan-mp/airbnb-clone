@@ -13,7 +13,7 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "staybnb | Holiday rentals, cabins, beach houses & more",
+  title: { default: "staybnb | Holiday rentals, cabins, beach houses & more", template: "%s | staybnb" },
   description: "Find places to stay — an Airbnb-style marketplace demo.",
 };
 

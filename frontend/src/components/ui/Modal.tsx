@@ -5,6 +5,8 @@ import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { clsx } from "clsx";
 
+const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
 type Props = {
   open: boolean;
   onClose: () => void;
@@ -22,18 +24,49 @@ type Props = {
 export function Modal({ open, onClose, title, children, footer, variant = "dialog", className, hideHeader, hideTitle }: Props) {
   const ref = useRef<HTMLDivElement>(null);
 
+  // Keep the latest onClose without re-running the focus logic on every parent render.
+  const onCloseRef = useRef(onClose);
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  });
+
   useEffect(() => {
     if (!open) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    document.addEventListener("keydown", onKey);
+    const opener = document.activeElement as HTMLElement | null;
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     ref.current?.focus();
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") return onCloseRef.current();
+      if (e.key !== "Tab" || !ref.current) return;
+      // focus trap: Tab and Shift+Tab cycle inside the dialog
+      const items = [...ref.current.querySelectorAll<HTMLElement>(FOCUSABLE)].filter((el) => el.offsetParent !== null || el === document.activeElement);
+      if (items.length === 0) {
+        e.preventDefault();
+        return ref.current.focus();
+      }
+      const first = items[0];
+      const last = items[items.length - 1];
+      const active = document.activeElement;
+      if (e.shiftKey && (active === first || active === ref.current)) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault();
+        first.focus();
+      } else if (!ref.current.contains(active)) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener("keydown", onKey);
     return () => {
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = prev;
+      opener?.focus?.(); // hand focus back to whatever opened the dialog
     };
-  }, [open, onClose]);
+  }, [open]);
 
   if (!open || typeof document === "undefined") return null;
 

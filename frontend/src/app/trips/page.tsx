@@ -13,8 +13,8 @@ import { CancelModal } from "@/components/trips/CancelModal";
 import { ReviewModal } from "@/components/trips/ReviewModal";
 import { api } from "@/lib/api";
 import { bookingRef, formatPrice, formatRangeYear, guestSummary, toISO } from "@/lib/format";
-import { imgSrc } from "@/lib/img";
 import type { Booking, TripTab } from "@/lib/types";
+import { SafeImg } from "@/components/ui/SafeImg";
 
 const PAGE_SIZE = 10;
 
@@ -72,11 +72,11 @@ export default function TripsPage() {
 
   let body: React.ReactNode;
   if (!ready) body = <Skeleton />;
-  else if (!user) body = <LoginPrompt icon={Luggage} title="Log in to see your trips" body="Your upcoming, past and cancelled stays live here." />;
-  else if (error) body = <StatePanel title="We couldn’t load your trips" body={error} action={{ label: "Try again", onClick: () => load(tab) }} />;
+  else if (!user) body = <LoginPrompt heading="h2" icon={Luggage} title="Log in to see your trips" body="Your upcoming, past and cancelled stays live here." />;
+  else if (error) body = <StatePanel heading="h2" title="We couldn’t load your trips" body={error} action={{ label: "Try again", onClick: () => load(tab) }} />;
   else if (items === undefined) body = <Skeleton />;
   else if (items.length === 0)
-    body = <StatePanel icon={Luggage} title={EMPTY[tab].title} body={EMPTY[tab].body} action={tab === "upcoming" ? { label: "Start searching", href: "/" } : undefined} testId="trips-empty" />;
+    body = <StatePanel heading="h2" icon={Luggage} title={EMPTY[tab].title} body={EMPTY[tab].body} action={tab === "upcoming" ? { label: "Start searching", href: "/" } : undefined} testId="trips-empty" />;
   else {
     const totalPages = Math.ceil(items.length / PAGE_SIZE);
     const page = Math.min(requestedPage, totalPages);
@@ -134,7 +134,7 @@ function TripCard({ booking: b, cancellable, onCancel, onReview }: { booking: Bo
     <li className="flex flex-col gap-4 md:flex-row md:gap-6" data-testid="trip-card">
       <Link href={`/rooms/${b.listing.id}`} className="block shrink-0 md:w-72" aria-label={b.listing.title}>
         <div className="aspect-card overflow-hidden rounded-card bg-surface-control">
-          {b.listing.photo && <img src={imgSrc(b.listing.photo, 640)} alt="" loading="lazy" className="size-full object-cover" />}
+          {b.listing.photo && <SafeImg src={b.listing.photo} width={640} alt="" loading="lazy" className="size-full object-cover" />}
         </div>
       </Link>
       <div className="flex min-w-0 flex-1 flex-col">

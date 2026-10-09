@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { api } from "./api";
 import type { ListingPage } from "./types";
 
@@ -12,12 +12,16 @@ export type ListingsState =
 type Result = { key: string; error?: string };
 
 /** Fetches a listing page for a query string; keeps previous data visible while refetching. */
-export function useListings(qs: string, refreshKey: unknown = null): ListingsState {
+export function useListings(qs: string, refreshKey: unknown = null, initial?: { qs: string; data: ListingPage } | null): ListingsState {
   const key = `${qs}|${String(refreshKey)}`;
-  const [data, setData] = useState<ListingPage | null>(null);
-  const [result, setResult] = useState<Result | null>(null);
+  // Server-rendered first page: used for the very first render of the matching query, then refetched on change.
+  const seeded = initial && initial.qs === qs ? initial : null;
+  const [data, setData] = useState<ListingPage | null>(seeded?.data ?? null);
+  const [result, setResult] = useState<Result | null>(seeded ? { key } : null);
+  const seededKey = useRef(seeded ? key : null);
 
   useEffect(() => {
+    if (seededKey.current === key) return; // already have this page from the server
     const ctrl = new AbortController();
     api
       .listings(qs, ctrl.signal)
